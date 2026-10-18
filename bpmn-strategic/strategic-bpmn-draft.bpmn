@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:bpsim="http://www.bpsim.org/schemas/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:drools="http://www.jboss.org/drools" xmlns:xsi="xsi" id="_JS-kwK6ZED-ue4i33tyUZg" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd http://www.omg.org/spec/DD/20100524/DC DC.xsd http://www.omg.org/spec/DD/20100524/DI DI.xsd " exporter="jBPM Process Modeler" exporterVersion="2.0" targetNamespace="http://www.omg.org/bpmn20">
+  <bpmn2:collaboration id="_5144E73B-75DD-4A11-8DF1-9B76EAACCB57" name="Default Collaboration">
+    <bpmn2:participant id="_3A24F14F-2DBC-49C0-A46E-59E0064AA82F" name="Pool Participant" processRef="strategic_bpmn_draft"/>
+  </bpmn2:collaboration>
+  <bpmn2:process id="strategic_bpmn_draft" drools:packageName="com.example" drools:version="1.0" drools:adHoc="false" name="strategic-bpmn-draft" processType="Public">
+    <bpmn2:sequenceFlow id="Flow_C_s_C_t0" sourceRef="C_s" targetRef="C_t0"/>
+    <bpmn2:sequenceFlow id="Flow_C_t0_C_t1" sourceRef="C_t0" targetRef="C_t1"/>
+    <bpmn2:sequenceFlow id="Flow_C_t1_C_t2" sourceRef="C_t1" targetRef="C_t2"/>
+    <bpmn2:sequenceFlow id="Flow_C_t2_C_t3" sourceRef="C_t2" targetRef="C_t3"/>
+    <bpmn2:sequenceFlow id="Flow_C_t3_C_t4" sourceRef="C_t3" targetRef="C_t4"/>
+    <bpmn2:sequenceFlow id="Flow_C_t4_C_e" sourceRef="C_t4" targetRef="C_e"/>
+    <bpmn2:startEvent id="C_s" name="Needs local food">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Needs local food]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:outgoing>Flow_C_s_C_t0</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:task id="C_t0" name="Browse and search products">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Browse and search products]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_C_s_C_t0</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_C_t0_C_t1</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="C_t1" name="Build basket and check out">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Build basket and check out]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_C_t0_C_t1</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_C_t1_C_t2</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="C_t2" name="Pay and confirm order">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Pay and confirm order]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_C_t1_C_t2</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_C_t2_C_t3</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="C_t3" name="Receive order (delivery or collection)">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Receive order (delivery or collection)]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_C_t2_C_t3</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_C_t3_C_t4</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="C_t4" name="Report food quality concern">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Report food quality concern]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_C_t3_C_t4</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_C_t4_C_e</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="C_e" name="Order received">
+      <bpmn2:extensionElements>
+        <drools:metaData name="elementname">
+          <drools:metaValue><![CDATA[Order received]]></drools:metaValue>
+        </drools:metaData>
+      </bpmn2:extensionElements>
+      <bpmn2:incoming>Flow_C_t4_C_e</bpmn2:incoming>
+    </bpmn2:endEvent>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="strategic_bpmn_draft">
+      <bpmndi:BPMNShape id="shape_C_e" bpmnElement="C_e">
+        <dc:Bounds height="56" width="56" x="1125" y="82"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_C_t4" bpmnElement="C_t4">
+        <dc:Bounds height="70" width="110" x="965" y="75"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_C_t3" bpmnElement="C_t3">
+        <dc:Bounds height="70" width="110" x="805" y="75"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_C_t2" bpmnElement="C_t2">
+        <dc:Bounds height="70" width="110" x="645" y="75"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_C_t1" bpmnElement="C_t1">
+        <dc:Bounds height="70" width="110" x="485" y="75"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_C_t0" bpmnElement="C_t0">
+        <dc:Bounds height="70" width="110" x="325" y="75"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_C_s" bpmnElement="C_s">
+        <dc:Bounds height="56" width="56" x="219" y="82"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_shape_C_t4_to_shape_C_e" bpmnElement="Flow_C_t4_C_e">
+        <di:waypoint x="1075" y="110"/>
+        <di:waypoint x="1125" y="100"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape_C_t3_to_shape_C_t4" bpmnElement="Flow_C_t3_C_t4">
+        <di:waypoint x="915" y="110"/>
+        <di:waypoint x="965" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape_C_t2_to_shape_C_t3" bpmnElement="Flow_C_t2_C_t3">
+        <di:waypoint x="755" y="110"/>
+        <di:waypoint x="805" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape_C_t1_to_shape_C_t2" bpmnElement="Flow_C_t1_C_t2">
+        <di:waypoint x="595" y="110"/>
+        <di:waypoint x="645" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape_C_t0_to_shape_C_t1" bpmnElement="Flow_C_t0_C_t1">
+        <di:waypoint x="435" y="110"/>
+        <di:waypoint x="485" y="110"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_shape_C_s_to_shape_C_t0" bpmnElement="Flow_C_s_C_t0">
+        <di:waypoint x="255" y="100"/>
+        <di:waypoint x="325" y="110"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmn2:relationship type="BPSimData">
+    <bpmn2:extensionElements>
+      <bpsim:BPSimData>
+        <bpsim:Scenario id="default" name="Simulationscenario">
+          <bpsim:ScenarioParameters/>
+          <bpsim:ElementParameters elementRef="C_t4">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters>
+              <bpsim:Availability>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters>
+              <bpsim:UnitCost>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters elementRef="C_t3">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters>
+              <bpsim:Availability>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters>
+              <bpsim:UnitCost>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters elementRef="C_t2">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters>
+              <bpsim:Availability>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters>
+              <bpsim:UnitCost>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters elementRef="C_t1">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters>
+              <bpsim:Availability>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters>
+              <bpsim:UnitCost>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters elementRef="C_t0">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+            <bpsim:ResourceParameters>
+              <bpsim:Availability>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Availability>
+              <bpsim:Quantity>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:Quantity>
+            </bpsim:ResourceParameters>
+            <bpsim:CostParameters>
+              <bpsim:UnitCost>
+                <bpsim:FloatingParameter value="0"/>
+              </bpsim:UnitCost>
+            </bpsim:CostParameters>
+          </bpsim:ElementParameters>
+          <bpsim:ElementParameters elementRef="C_s">
+            <bpsim:TimeParameters>
+              <bpsim:ProcessingTime>
+                <bpsim:NormalDistribution mean="0" standardDeviation="0"/>
+              </bpsim:ProcessingTime>
+            </bpsim:TimeParameters>
+          </bpsim:ElementParameters>
+        </bpsim:Scenario>
+      </bpsim:BPSimData>
+    </bpmn2:extensionElements>
+    <bpmn2:source>_JS-kwK6ZED-ue4i33tyUZg</bpmn2:source>
+    <bpmn2:target>_JS-kwK6ZED-ue4i33tyUZg</bpmn2:target>
+  </bpmn2:relationship>
+</bpmn2:definitions>
