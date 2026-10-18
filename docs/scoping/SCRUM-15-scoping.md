@@ -23,8 +23,7 @@
 
 
 
-## Functionality 1
-###  
+## Functionality 1 - 
 
   - Purpose:
   - Trigger:
@@ -40,8 +39,7 @@
   - Strategic BPMN Traceability:
 
 
-## Functionality 2
-### 
+## Functionality 2 - 
 
   - Purpose:
   - Trigger:
