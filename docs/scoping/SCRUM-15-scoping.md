@@ -27,11 +27,15 @@ Each functionality will be scoped by identifying its trigger, actors, main proce
 
 ## Selected Use Case Justification
 
+As a group, we have selected Use Case 2 - Customer Multi-Vendor Order, Checkout and Payment as it covers two major business functionalities: **Checkout & Order Processing** and **Payment Processing & Settlement**. 
 
+This use case was the most suitable choice because it involves customer interactions, automated tasks such as stock checking and payment processing, business decisions using gateways, and integration with an external payment service. In addition, it includes exception handling for situations such as insufficient stock or declined payments. These features make Use Case 2 suitable for BPMN modelling and Camunda implementation, as they allow us to develop two connected business processes. 
 
-## Functionality 1 - 
+Compared to the other use cases, we decided that this use case is the best choice because it offers a good balance of functionality and complexity while remaining achievable within the project timeframe.
 
-  - Purpose:
+## Functionality 1 - Checkout & Order Processing
+
+  - Purpose: 
   - Trigger:
   - Actors:
   - Main Process:
@@ -45,7 +49,7 @@ Each functionality will be scoped by identifying its trigger, actors, main proce
   - Strategic BPMN Traceability:
 
 
-## Functionality 2 - 
+## Functionality 2 - Payment Processing & Settlement
 
   - Purpose:
   - Trigger:
