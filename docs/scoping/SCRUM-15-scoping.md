@@ -17,7 +17,11 @@ Each functionality will be scoped by identifying its trigger, actors, main proce
 
 ## Use Case Comparison
 
-
+| Use Case | Advantages | Challenges |
+|---|---|---|
+| **1. Producer Listing and Inventory** | Automated product validation, stock updates, external certification checks, clear decision points | Managing seasonal availability, invalid product information and unavailable certification services. |
+| **2. Multi-Vendor Checkout and Payment** | Automated stock checks, multi-producer order processing, external payment integration and clear exception handling. | Managing stock shortages, declined payments, unavailable payment services and accurate producer payment allocations. |
+| **3. Food Quality Incident and Traceability** | Product traceability, automated customer notifications, incident escalation and human decision-making. | Identifying affected customers, managing product suspensions, failed notifications and incident follow-ups. |
 
 
 
