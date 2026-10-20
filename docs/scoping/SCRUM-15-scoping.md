@@ -9,7 +9,9 @@
 
 ## Introduction
 
+This document evaluates the three use cases provided by the University and justifies the selection of the Customer Multi-Vendor Order, Checkout and Payment Use Case (Use Case 2). It also proposes two substantial business functionalities for further development: **Checkout & Order Processing** and **Payment Processing & Settlement**.
 
+Each functionality will be scoped by identifying its trigger, actors, main process steps, business decisions, automated activities, external service interactions and exception flows. The document will also consider how these functionalities can relate to the strategic BPMN model and assess their feasibility for implementation using Camunda during Sprints 2 and 3.
 
 
 
