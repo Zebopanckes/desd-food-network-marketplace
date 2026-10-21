@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_AlecPart" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="d6c3b0b" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <bpmn:message id="Message_ConcernReported" name="Concern reported" />
+  <bpmn:message id="Message_SafetyNotice" name="Safety notice" />
+  <bpmn:message id="Message_IncidentResponse" name="Incident response request" />
+  <bpmn:dataStore id="DataStore_Records" name="Customer, product and producer records" />
+  <bpmn:collaboration id="Collaboration_Strategic">
+    <bpmn:participant id="Participant_Customers" name="Customers" />
+    <bpmn:participant id="Participant_Marketplace" name="Marketplace" processRef="Process_Marketplace" />
+    <bpmn:participant id="Participant_Producers" name="Producers" />
+    <bpmn:messageFlow id="MessageFlow_ConcernReported" sourceRef="Participant_Customers" targetRef="StartEvent_ConcernReported" messageRef="Message_ConcernReported" />
+    <bpmn:messageFlow id="MessageFlow_SafetyNotice" sourceRef="SubProcess_QualityIncident" targetRef="Participant_Customers" messageRef="Message_SafetyNotice" />
+    <bpmn:messageFlow id="MessageFlow_IncidentResponse" sourceRef="SubProcess_QualityIncident" targetRef="Participant_Producers" messageRef="Message_IncidentResponse" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Marketplace" name="Marketplace" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Marketplace">
+      <bpmn:lane id="Lane_Quality" name="Quality and Traceability">
+        <bpmn:flowNodeRef>StartEvent_ConcernReported</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SubProcess_QualityIncident</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Admin" name="Network Administration and Sustainability">
+        <bpmn:flowNodeRef>EndEvent_IncidentClosed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SubProcess_ReviewClose</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_ConcernReported" name="Quality concern reported">
+      <bpmn:outgoing>Flow_Start_Handling</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_Concern" messageRef="Message_ConcernReported" />
+    </bpmn:startEvent>
+    <bpmn:subProcess id="SubProcess_QualityIncident" name="Quality incident handling">
+      <bpmn:incoming>Flow_Start_Handling</bpmn:incoming>
+      <bpmn:outgoing>Flow_Handling_Review</bpmn:outgoing>
+      <bpmn:property id="Property_Records" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DataInputAssociation_Records">
+        <bpmn:sourceRef>DataStoreReference_Records</bpmn:sourceRef>
+        <bpmn:targetRef>Property_Records</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:startEvent id="StartEvent_QI_Inner" name="Start">
+        <bpmn:outgoing>Flow_QI_1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Task_QI_Placeholder" name="Placeholder: detail in Sprint 2">
+        <bpmn:incoming>Flow_QI_1</bpmn:incoming>
+        <bpmn:outgoing>Flow_QI_2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="EndEvent_QI_Inner" name="End">
+        <bpmn:incoming>Flow_QI_2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_QI_1" sourceRef="StartEvent_QI_Inner" targetRef="Task_QI_Placeholder" />
+      <bpmn:sequenceFlow id="Flow_QI_2" sourceRef="Task_QI_Placeholder" targetRef="EndEvent_QI_Inner" />
+    </bpmn:subProcess>
+    <bpmn:dataStoreReference id="DataStoreReference_Records" name="Customer, product and producer records" dataStoreRef="DataStore_Records" />
+    <bpmn:sequenceFlow id="Flow_Start_Handling" sourceRef="StartEvent_ConcernReported" targetRef="SubProcess_QualityIncident" />
+    <bpmn:sequenceFlow id="Flow_Handling_Review" sourceRef="SubProcess_QualityIncident" targetRef="SubProcess_ReviewClose" />
+    <bpmn:sequenceFlow id="Flow_Review_End" sourceRef="SubProcess_ReviewClose" targetRef="EndEvent_IncidentClosed" />
+    <bpmn:subProcess id="SubProcess_ReviewClose" name="Review and close incident">
+      <bpmn:incoming>Flow_Handling_Review</bpmn:incoming>
+      <bpmn:outgoing>Flow_Review_End</bpmn:outgoing>
+      <bpmn:startEvent id="StartEvent_RC_Inner" name="Start">
+        <bpmn:outgoing>Flow_RC_1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Task_RC_Placeholder" name="Placeholder: detail in Sprint 2">
+        <bpmn:incoming>Flow_RC_1</bpmn:incoming>
+        <bpmn:outgoing>Flow_RC_2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="EndEvent_RC_Inner" name="End">
+        <bpmn:incoming>Flow_RC_2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_RC_1" sourceRef="StartEvent_RC_Inner" targetRef="Task_RC_Placeholder" />
+      <bpmn:sequenceFlow id="Flow_RC_2" sourceRef="Task_RC_Placeholder" targetRef="EndEvent_RC_Inner" />
+    </bpmn:subProcess>
+    <bpmn:endEvent id="EndEvent_IncidentClosed" name="Incident closed">
+      <bpmn:incoming>Flow_Review_End</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Main">
+    <bpmndi:BPMNPlane id="BPMNPlane_Main" bpmnElement="Collaboration_Strategic">
+      <bpmndi:BPMNShape id="Participant_Marketplace_di" bpmnElement="Participant_Marketplace" isHorizontal="true">
+        <dc:Bounds x="160" y="170" width="700" height="340" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Admin_di" bpmnElement="Lane_Admin" isHorizontal="true">
+        <dc:Bounds x="190" y="350" width="670" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Quality_di" bpmnElement="Lane_Quality" isHorizontal="true">
+        <dc:Bounds x="190" y="170" width="670" height="180" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_ConcernReported_di" bpmnElement="StartEvent_ConcernReported">
+        <dc:Bounds x="250" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="228" y="285" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_IncidentClosed_di" bpmnElement="EndEvent_IncidentClosed">
+        <dc:Bounds x="762" y="406" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="743" y="449" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubProcess_QualityIncident_di" bpmnElement="SubProcess_QualityIncident" isExpanded="false">
+        <dc:Bounds x="340" y="220" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStoreReference_Records_di" bpmnElement="DataStoreReference_Records">
+        <dc:Bounds x="530" y="185" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="590" y="190" width="110" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubProcess_ReviewClose_di" bpmnElement="SubProcess_ReviewClose" isExpanded="false">
+        <dc:Bounds x="560" y="384" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_Handling_di" bpmnElement="Flow_Start_Handling">
+        <di:waypoint x="286" y="260" />
+        <di:waypoint x="340" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Handling_Review_di" bpmnElement="Flow_Handling_Review">
+        <di:waypoint x="480" y="260" />
+        <di:waypoint x="630" y="260" />
+        <di:waypoint x="630" y="384" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Review_End_di" bpmnElement="Flow_Review_End">
+        <di:waypoint x="700" y="424" />
+        <di:waypoint x="762" y="424" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Customers_di" bpmnElement="Participant_Customers" isHorizontal="true">
+        <dc:Bounds x="160" y="91" width="700" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_Producers_di" bpmnElement="Participant_Producers" isHorizontal="true">
+        <dc:Bounds x="160" y="551" width="700" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataInputAssociation_Records_di" bpmnElement="DataInputAssociation_Records">
+        <di:waypoint x="530" y="213" />
+        <di:waypoint x="480" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_ConcernReported_di" bpmnElement="MessageFlow_ConcernReported">
+        <di:waypoint x="268" y="151" />
+        <di:waypoint x="268" y="242" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="290" y="121" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SafetyNotice_di" bpmnElement="MessageFlow_SafetyNotice">
+        <di:waypoint x="410" y="220" />
+        <di:waypoint x="410" y="151" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="441" y="120" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_IncidentResponse_di" bpmnElement="MessageFlow_IncidentResponse">
+        <di:waypoint x="410" y="300" />
+        <di:waypoint x="410" y="551" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="425" y="416" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_QI">
+    <bpmndi:BPMNPlane id="BPMNPlane_QI" bpmnElement="SubProcess_QualityIncident">
+      <bpmndi:BPMNShape id="StartEvent_QI_Inner_di" bpmnElement="StartEvent_QI_Inner">
+        <dc:Bounds x="200" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="185" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_QI_Placeholder_di" bpmnElement="Task_QI_Placeholder">
+        <dc:Bounds x="290" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_QI_Inner_di" bpmnElement="EndEvent_QI_Inner">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="185" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_QI_1_di" bpmnElement="Flow_QI_1">
+        <di:waypoint x="236" y="160" />
+        <di:waypoint x="290" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_QI_2_di" bpmnElement="Flow_QI_2">
+        <di:waypoint x="430" y="160" />
+        <di:waypoint x="492" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_RC">
+    <bpmndi:BPMNPlane id="BPMNPlane_RC" bpmnElement="SubProcess_ReviewClose">
+      <bpmndi:BPMNShape id="StartEvent_RC_Inner_di" bpmnElement="StartEvent_RC_Inner">
+        <dc:Bounds x="200" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="185" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RC_Placeholder_di" bpmnElement="Task_RC_Placeholder">
+        <dc:Bounds x="290" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_RC_Inner_di" bpmnElement="EndEvent_RC_Inner">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="185" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_RC_1_di" bpmnElement="Flow_RC_1">
+        <di:waypoint x="236" y="160" />
+        <di:waypoint x="290" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_RC_2_di" bpmnElement="Flow_RC_2">
+        <di:waypoint x="430" y="160" />
+        <di:waypoint x="492" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
