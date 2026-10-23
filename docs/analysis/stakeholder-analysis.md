@@ -25,7 +25,7 @@ For each stakeholder: needs or goals, responsibilities and key dependencies. Ass
 **Needs**
 
 - An intuitive way to list their products with name, description, pricing and availability timeframes (case study)
-- Inventory updates that need no extensive technical knowledge or training - skill vary across the network, and some producers work only by email and phone (case study)
+- Inventory updates that need no extensive technical knowledge or training - skills vary across the network, and some producers work only by email and phone (case study)
 - Visibility of incoming orders, with at least 48 hours' notice (case study)
 - Weekly payment settlements with transparent audit trails for tax reporting and accounting (case study)
 - Features to share seasonal recipes, storage guidance and farm stories (case study)
@@ -60,7 +60,7 @@ All three segments share one flow at strategic level.
 
 **Key dependencies**
 
-* Customers depend on producers for safe, accuratley described local produce (resource)
+* Customers depend on producers for safe, accurately described local produce (resource)
 * Customers depend on the platform for stock checks and multi-vendor order coordination (task) and for safety notifications (goal)
 
 **Differences between segments**
@@ -68,8 +68,8 @@ All three segments share one flow at strategic level.
 | Segment                           | Specific needs                                                                             | Responsibilities or dependencies                              |
 | --------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
 | Young professionals and families  | Buy locally sourced produce without visiting farm shops during their limited opening hours | Clearly visible produce origin, so they can trust it is local |
-| Community groups                  | Reliable and consistent sources of local produce                                           |                                                               |
-| Independent restaurants and cafes | Source locally without administrative overhead of managing many small suppliers            | Adapt menus to seasonal produce (**TO CONFIRM**)              |
+| Community groups                  | Reliable and consistent sources of local produce                                           | None identified                                               |
+| Independent restaurants and cafes | Source locally without administrative overhead of managing many small suppliers            | Adapt menus to seasonal produce (**TO CONFIRM**)        |
 
 ### Network or platform admin
 
@@ -78,7 +78,7 @@ The case study describes platform duties, and the admin role only appears in Use
 **Needs**
 
 - Connect customers within a 20-mile radius of Bristol city centre with local producers
-- Calculate the networks's 5% commission automatically
+- Calculate the network's 5% commission automatically
 
 **Responsibilities**
 
@@ -113,18 +113,18 @@ The case study describes platform duties, and the admin role only appears in Use
 
 Each process maps to a lane in the marketplace pool of the strategic BPMN. Processes 2 and 3 are our two functionalities
 
-| Process                                        | Responsible area (marketplace lane)                                                | Main actors                                                             | External services     | Link                                                            |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------------------- | --------------------------------------------------------------- |
-| 1. Product listing and inventory management    | Product and inventory management                                                   | Producers, platform                                                     | Organic certification | Use case 1                                                      |
-| 2. Order and checkout (multi-vendor)           | Order and checkout                                                                 | Customers, platform, producers (receive their orders)                   | None                  | Functionality 1: Checkout and Order processing                  |
-| 3. Payment, commission and producer settlement | Payments and settlements                                                           | Customers, platform, producers (weekly settlement), admin (commission) | Payment service       | Functionality 2: Payment processing and settlement              |
-| 4. Quality incident and traceability           | Quality and traceability, with review in Network administration and sustainability | Customers, producers, admin                                             | None                  | Use case 3                                                      |
-| 5. Community and sustainability features       | Network administration and sustainability                                          | Producers, admin (**TO CONFIRM**), customers                            | None                  | Case study:food miles, surplus discounts, educational discounts |
+| Process                                        | Responsible area (marketplace lane)                                                | Main actors                                                            | External services     | Link                                                                                               |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------- |
+| 1. Product listing and inventory management    | Product and inventory management                                                   | Producers, platform                                                    | Organic certification | Enterprise context, not implemented (use case 1)                                                   |
+| 2. Order and checkout (multi-vendor)           | Order and checkout                                                                 | Customers, platform, producers (receive their orders)                  | None                  | Functionality 1: Checkout and Order processing (use case 2)                                        |
+| 3. Payment, commission and producer settlement | Payments and settlements                                                           | Customers, platform, producers (weekly settlement), admin (commission) | Payment service       | Functionality 2: Payment processing and settlement (use case 2)                                    |
+| 4. Quality incident and traceability           | Quality and traceability, with review in Network administration and sustainability | Customers, producers, admin                                            | None                  | Enterprise context, not implemented (use case 3)                                                   |
+| 5. Community and sustainability features       | Network administration and sustainability                                          | Producers, admin (**TO CONFIRM**), customers                     | None                  | Enterprise context,  implemented (Case study: food miles, surplus discounts, educational content) |
 
 #### How the processes connect - simplified at strategic level
 
 * Listing makes product and stock available
-* Order and  checkout uses that stock and creates producer specific orders
+* Order and checkout uses that stock and creates producer specific orders
 * Payment and settlement pays for the order, takes 5% commission and settles with producers
 * Quality incident handling uses the records linking customers, products and producers
 
