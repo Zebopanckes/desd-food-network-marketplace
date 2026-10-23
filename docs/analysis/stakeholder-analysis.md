@@ -4,7 +4,17 @@
 **Lead:** Bartek (analysis and quality). **Supports:** Ashley (process list), everyone (case study reading)
 **Feeds:** the strategic BPMN (SCRUM-13) and the scoping document (SCRUM-15)
 
+<<<<<<< HEAD
 Use Case 2 is our chosen use case and the only one we will implement. Use Cases 1 and 3 are referenced here as enterprise context for the strategic model.
+=======
+## Checklist (from SCRUM-11)
+
+- [x] Stakeholder analysis: producers, customers and network admin
+- [ ] Payment and certification service entries
+- [ ] Major business processes and responsibilities table (priority, the BPMN is checked against it)
+- [ ] Assumptions listed
+- [ ] Reviewed by the modelling lead and confirmed as enough to draw the strategic BPMN from
+>>>>>>> b9cfec6764527f03e52ea6740b9fe327427eade1
 
 ## 1. Stakeholder analysis
 
@@ -17,8 +27,13 @@ For each stakeholder: needs or goals, responsibilities and key dependencies. Ass
 | Producers                     | Supplier         | Sell local produce with little admin effort and get paid weekly  |
 | Customers (three segments)    | Buyer            | Browse, search and order locally sourced food easily             |
 | Network or platform admin     | Operator         | Connect local customers and producers and earn the 5% commission |
+<<<<<<< HEAD
 | Payment service               | External service | Process payment requests and return the result                   |
 | Organic certification service | External service | Verify organic certification claims                              |
+=======
+| Payment service               | External service | TO DO                                                            |
+| Organic certification service | External service | TO DO                                                            |
+>>>>>>> b9cfec6764527f03e52ea6740b9fe327427eade1
 
 ### Producers
 
@@ -43,7 +58,11 @@ For each stakeholder: needs or goals, responsibilities and key dependencies. Ass
 
 ### Customers
 
+<<<<<<< HEAD
 All three segments share one flow at strategic level.
+=======
+All three segments share one flow at strategic level. Their different needs are listed below.
+>>>>>>> b9cfec6764527f03e52ea6740b9fe327427eade1
 
 **Needs shared by all customers**
 
@@ -52,6 +71,7 @@ All three segments share one flow at strategic level.
 - Single-vendor and multi-vendor checkout with clear communication about supplier responsibilities, delivery arrangements and collection procedures (Case study)
 - Being told promptly if a product they bought is subject to a food quality or safety concern (Use Case 3)
 
+<<<<<<< HEAD
 **Responsibilities**
 
 * Review and confirm the order, and amend it if stock is insufficient (use case 2)
@@ -71,6 +91,15 @@ All three segments share one flow at strategic level.
 | Community groups                  | Reliable and consistent sources of local produce                                           |                                                               |
 | Independent restaurants and cafes | Source locally without administrative overhead of managing many small suppliers            | Adapt menus to seasonal produce **TO CONFIRM** -     |
 
+=======
+**Differences between segments**
+
+| Segment                           | Specific needs                                                                                                             | Responsibilities or dependencies (where known)                                   |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Young professionals and families  | Buy locally sourced produce without visiting farm shops during their limited opening hours                                 | Dependency: clearly visible produce origin, so they can trust it is local        |
+| Community groups                  | Reliable and consistent sources of local produce                                                                           | None identified                                                                  |
+| Independent restaurants and cafes | Order from several small suppliers without maintaining a relationship with each one, in a way that does not take much time | Responsibility: adapt menus to changes in seasonal produce                       |
+>>>>>>> b9cfec6764527f03e52ea6740b9fe327427eade1
 
 ### Network or platform admin
 
@@ -110,6 +139,7 @@ All three segments share one flow at strategic level.
 
 ## 2. Major business processes and responsibilities
 
+<<<<<<< HEAD
 Each process maps to a lane in the marketplace pool of the strategic BPMN. Processes 2 and 3 are our two functionalities
 
 | Process                                        | Responsible area (marketplace lane)                                                | Main actors                                                             | External services     | Link                                                            |
@@ -135,3 +165,22 @@ Each process maps to a lane in the marketplace pool of the strategic BPMN. Proce
 - The 5% commission is deducted from producer payments at weekly settlement - case study: Commission calculated automatically, payments distributed on agreed timeframes
 - The strategic BPMN shows only customers reporting quality concerns for readability, although use case 3 allows producers and admins to report.
 - Producers have a device and internet access to use the platform - not stated in the case study
+=======
+**TO DO.** One row per major process. The strategic BPMN is checked against this table ("every major process appears on the diagram"). The names below come from the BPMN walkthrough notes, so **TO CONFIRM** them against the case study and add any that are missing.
+
+| Process                                     | Owner or responsible area | Main actors | External services involved |
+| ------------------------------------------- | ------------------------- | ----------- | -------------------------- |
+| Product listing and inventory management    | TO DO                     | TO DO       | TO DO                      |
+| Order and checkout (multi-vendor)           | TO DO                     | TO DO       | TO DO                      |
+| Payment, commission and producer settlement | TO DO                     | TO DO       | TO DO                      |
+| Quality incident and traceability           | TO DO                     | TO DO       | TO DO                      |
+| Community and sustainability features       | TO DO                     | TO DO       | TO DO                      |
+
+## 3. Assumptions
+
+One line per assumption, saying where it came from.
+
+- Farm staff have basic IT skills (from the producers analysis)
+- **TO CONFIRM:** delivery or collection is not shown as its own step, because the case study does not say who delivers. It sits inside checkout and fulfilment (from the BPMN notes)
+- **TO DO:** add the rest as you find them
+>>>>>>> b9cfec6764527f03e52ea6740b9fe327427eade1
