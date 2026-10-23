@@ -1,4 +1,3 @@
-
 # Stakeholder and Enterprise Analysis (SCRUM-11)
 
 **Jira:** SCRUM-11, Enterprise analysis: stakeholders, major processes and responsibilities
@@ -7,14 +6,11 @@
 
 ## Checklist (from SCRUM-11)
 
-- [X] Stakeholder analysis: first version for producers, customers and network admin
-- [ ] Stakeholder analysis: add the two external services and fill the blank customer cells
+- [x] Stakeholder analysis: producers, customers and network admin
+- [ ] Payment and certification service entries
 - [ ] Major business processes and responsibilities table (priority, the BPMN is checked against it)
 - [ ] Assumptions listed
-- [ ] Case study notes pooled (optional, can stay in personal notes)
-- [ ] Rough i* SD notes (optional, not marked until Sprint 2)
 - [ ] Reviewed by the modelling lead and confirmed as enough to draw the strategic BPMN from
-- [ ] Commit message under the SCRUM-11 key, for example `SCRUM-11: add process table`
 
 ## 1. Stakeholder analysis
 
@@ -28,7 +24,7 @@ For each stakeholder: needs or goals, responsibilities and key dependencies. Ass
 | Customers (three segments)    | Buyer            | Browse, search and order locally sourced food easily             |
 | Network or platform admin     | Operator         | Connect local customers and producers and earn the 5% commission |
 | Payment service               | External service | TO DO                                                            |
-| Organic certification service | External service | TO DO                                                           |
+| Organic certification service | External service | TO DO                                                            |
 
 ### Producers
 
@@ -53,7 +49,7 @@ For each stakeholder: needs or goals, responsibilities and key dependencies. Ass
 
 ### Customers
 
-All three segments share one flow at strategic level. Their different needs are listed below and can be developed in the i* models.
+All three segments share one flow at strategic level. Their different needs are listed below.
 
 **Needs shared by all customers**
 
@@ -63,17 +59,13 @@ All three segments share one flow at strategic level. Their different needs are 
 - Simple single-vendor and multi-vendor orders
 - Clear communication about each supplier's responsibilities, delivery arrangements and collection procedures
 
-**Responsibilities:** TO DO
-
-**Key dependencies:** TO DO 
-
 **Differences between segments**
 
-| Segment                           | Specific needs                                                                                                             | Responsibilities                           | Key dependencies                                              |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------- |
-| Young professionals and families  | Buy locally sourced produce without visiting farm shops during their limited opening hours                                 | TO DO                                      | Clearly visible produce origin, so they can trust it is local |
-| Community groups                  | Reliable and consistent sources of local produce                                                                           | TO DO                                      | TO DO                                                         |
-| Independent restaurants and cafes | Order from several small suppliers without maintaining a relationship with each one, in a way that does not take much time | Adapt menus to changes in seasonal produce | TO DO                                                         |
+| Segment                           | Specific needs                                                                                                             | Responsibilities or dependencies (where known)                                   |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Young professionals and families  | Buy locally sourced produce without visiting farm shops during their limited opening hours                                 | Dependency: clearly visible produce origin, so they can trust it is local        |
+| Community groups                  | Reliable and consistent sources of local produce                                                                           | None identified                                                                  |
+| Independent restaurants and cafes | Order from several small suppliers without maintaining a relationship with each one, in a way that does not take much time | Responsibility: adapt menus to changes in seasonal produce                       |
 
 ### Network or platform admin
 
@@ -100,7 +92,7 @@ All three segments share one flow at strategic level. Their different needs are 
 
 ## 2. Major business processes and responsibilities
 
-**TO DO.** One row per major process. The strategic BPMN is checked against this table ("every major process appears on the diagram"). The first five names come from the BPMN walkthrough notes, so **TO CONFIRM** them against the case study and add any that are missing. The README expects six processes.
+**TO DO.** One row per major process. The strategic BPMN is checked against this table ("every major process appears on the diagram"). The names below come from the BPMN walkthrough notes, so **TO CONFIRM** them against the case study and add any that are missing.
 
 | Process                                     | Owner or responsible area | Main actors | External services involved |
 | ------------------------------------------- | ------------------------- | ----------- | -------------------------- |
@@ -109,7 +101,6 @@ All three segments share one flow at strategic level. Their different needs are 
 | Payment, commission and producer settlement | TO DO                     | TO DO       | TO DO                      |
 | Quality incident and traceability           | TO DO                     | TO DO       | TO DO                      |
 | Community and sustainability features       | TO DO                     | TO DO       | TO DO                      |
-| TO DO (sixth process, if any)               | TO DO                     | TO DO       | TO DO                      |
 
 ## 3. Assumptions
 
@@ -118,18 +109,3 @@ One line per assumption, saying where it came from.
 - Farm staff have basic IT skills (from the producers analysis)
 - **TO CONFIRM:** delivery or collection is not shown as its own step, because the case study does not say who delivers. It sits inside checkout and fulfilment (from the BPMN notes)
 - **TO DO:** add the rest as you find them
-
-## 4. Case study notes (optional)
-
-Pool notes from reading the case study under these headings. Short bullets are fine, and add the page or section where it helps.
-
-- **Actors:** TO DO
-- **Goals:** TO DO
-- **Requirements:** TO DO
-- **External services:** TO DO
-
-## 5. Rough i* SD notes (optional)
-
-Not marked until Sprint 2, but useful for lining up with the BPMN. For each stakeholder, note main goals, softgoals and who depends on whom.
-
-- TO DO (if any)
