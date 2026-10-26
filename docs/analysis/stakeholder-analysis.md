@@ -1,6 +1,6 @@
 # Stakeholder and Enterprise Analysis (SCRUM-11)
 
-**Jira:** SCRUM-11, Enterprise analysis: stakeholders, major processes and responsibilities
+**Jira:** SCRUM-11, Enterprise analysis: stakeholders, major processes, and responsibilities
 **Lead:** Bartek (analysis and quality). **Supports:** Ashley (process list), everyone (case study reading)
 **Feeds:** the strategic BPMN (SCRUM-13) and the scoping document (SCRUM-15)
 
@@ -8,7 +8,7 @@ Use Case 2 is our chosen use case and the only one we will implement. Use Cases 
 
 ## 1. Stakeholder analysis
 
-For each stakeholder: needs or goals, responsibilities and key dependencies. Assumptions go in one list in section 3.
+For each stakeholder: needs or goals, responsibilities, and key dependencies. Assumptions go in one list in section 3.
 
 ### Summary
 
@@ -24,7 +24,7 @@ For each stakeholder: needs or goals, responsibilities and key dependencies. Ass
 
 **Needs**
 
-- An intuitive way to list their products with name, description, pricing and availability timeframes (case study)
+- An intuitive way to list their products with name, description, pricing, and availability timeframes (case study)
 - Inventory updates that need no extensive technical knowledge or training - skills vary across the network, and some producers work only by email and phone (case study)
 - Visibility of incoming orders, with at least 48 hours' notice (case study)
 - Weekly payment settlements with transparent audit trails for tax reporting and accounting (case study)
@@ -33,17 +33,17 @@ For each stakeholder: needs or goals, responsibilities and key dependencies. Ass
 **Responsibilities**
 
 - Keep inventory and pricing, and seasonal availability up to date (case study, use case 1)
-- Provide traceability information: organic certification status, allergen warnings and best before dates (case study)
-- Offer last-minute discounts on surplus produce and update the educational content (case study, producer ownership **TO CONFIRM**)
+- Provide traceability information: organic certification status, allergen warnings, and best-before dates (case study)
+- Offer last-minute discounts on surplus produce and update the educational content (case study)
 
 **Key dependencies**
 
-- Producers depend on the platform for a simple listing and inventory tool (softgoal), order notice of at least 48 hours (resource) and weekly settlements (goal)
+- Producers depend on the platform for a simple listing and inventory tool (soft goal), order notice of at least 48 hours (resource), and weekly settlements (goal)
 - Producers depend on customers for orders (goal)
 
 ### Customers
 
-All three segments share one flow at strategic level.
+All three segments share one flow at the strategic level.
 
 **Needs shared by all customers**
 
@@ -69,7 +69,7 @@ All three segments share one flow at strategic level.
 | --------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
 | Young professionals and families  | Buy locally sourced produce without visiting farm shops during their limited opening hours | Clearly visible produce origin, so they can trust it is local |
 | Community groups                  | Reliable and consistent sources of local produce                                           | None identified                                               |
-| Independent restaurants and cafes | Source locally without administrative overhead of managing many small suppliers            | Adapt menus to seasonal produce (**TO CONFIRM**)        |
+| Independent restaurants and cafes | Source locally without administrative overhead of managing many small suppliers            | Adapt menus to seasonal produce (case study: "producers to list items with seasonal availability", **TO CONFIRM**), these cafes and restaurants could choose to not include seasonal products in their menus in the first place        |
 
 ### Network or platform admin
 
@@ -97,8 +97,8 @@ The case study describes platform duties, and the admin role only appears in Use
 
 ### Payment service (external, Sandbox)
 
-* **Needs:** a payment request with the order reference and amount. some expected fields may be: amount, currency(maybe not needed), idempotency key(unique to prevent duplicate requests), order ID (proposed, **TO CONFIRM**)
-* **Responsibilities:** Process the request and return success or declined. platform also handles service being unavailable
+* **Needs:** a payment request with the order reference and amount. some expected fields may be: amount, currency(maybe not needed), idempotency key(unique to prevent duplicate requests), order ID (proposed, bookkeeping purposes )
+* **Responsibilities:** Process the request and return success or declined. Platform also handles the service being unavailable
 * **Dependency:** The payment service depends on the platform for a correct, complete request
 
 ### Organic certification service (external or simulated)
@@ -119,20 +119,20 @@ Each process maps to a lane in the marketplace pool of the strategic BPMN. Proce
 | 2. Order and checkout (multi-vendor)           | Order and checkout                                                                 | Customers, platform, producers (receive their orders)                  | None                  | Functionality 1: Checkout and Order processing (use case 2)                                        |
 | 3. Payment, commission and producer settlement | Payments and settlements                                                           | Customers, platform, producers (weekly settlement), admin (commission) | Payment service       | Functionality 2: Payment processing and settlement (use case 2)                                    |
 | 4. Quality incident and traceability           | Quality and traceability, with review in Network administration and sustainability | Customers, producers, admin                                            | None                  | Enterprise context, not implemented (use case 3)                                                   |
-| 5. Community and sustainability features       | Network administration and sustainability                                          | Producers, admin (**TO CONFIRM**), customers                     | None                  | Enterprise context,  implemented (Case study: food miles, surplus discounts, educational content) |
+| 5. Community and sustainability features       | Network administration and sustainability                                          | Producers, admin, customers                     | None                  | Enterprise context,  implemented (Case study: food miles, surplus discounts, educational content) |
 
 #### How the processes connect - simplified at strategic level
 
 * Listing makes product and stock available
-* Order and checkout uses that stock and creates producer specific orders
-* Payment and settlement pays for the order, takes 5% commission and settles with producers
+* Order and checkout use that stock and creates producer specific orders
+* Payment and settlement pays for the order, takes 5% commission, and settles with producers
 * Quality incident handling uses the records linking customers, products and producers
 
 ## 3. Assumptions
 
 - All three customer segments follow one flow at strategic level - modelling
 - Browsing and searching are the entry steps of order and checkout, not a separate process - modelling
-- Delivery and collection sit inside checkout and fulfilment, with each producer responsible for its own arrangements  - case study: "individual supplier responsibilities, delivery arrangements and collection procedures" - **TO CONFIRM**
-- The 5% commission is deducted from producer payments at weekly settlement - case study: Commission calculated automatically, payments distributed on agreed timeframes - **TO CONFIRM**
+- Delivery and collection sit inside checkout and fulfilment, with each producer responsible for its own arrangements  - case study: "individual supplier responsibilities, delivery arrangements and collection procedures" 
+- The 5% commission is deducted from producer payments at weekly settlement - case study: Commission calculated automatically, payments distributed on agreed timeframes 
 - The strategic BPMN shows only customers reporting quality concerns for readability, although use case 3 allows producers and admins to report.
-- Producers have a device and internet access to use the platform - not stated in the case study - **TO CONFIRM**
+- Producers have a device and internet access to use the platform - not stated in the case study - but the producers need to use the platform somehow **TO CONFIRM**
