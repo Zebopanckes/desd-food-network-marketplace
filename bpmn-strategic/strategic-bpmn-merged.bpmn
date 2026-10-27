@@ -1,0 +1,838 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="Definitions_Strategic" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="f127538" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <bpmn:message id="Message_ListingSubmitted" name="Listing submitted" />
+  <bpmn:message id="Message_CertCheckRequest" name="Certification check request" />
+  <bpmn:message id="Message_CertResult" name="Certification result" />
+  <bpmn:message id="Message_OrderPlaced" name="Customer order placed" />
+  <bpmn:message id="Message_ProducerOrder" name="Producer order" />
+  <bpmn:message id="Message_PaymentRequest" name="Payment request" />
+  <bpmn:message id="Message_PaymentResult" name="Payment result" />
+  <bpmn:message id="Message_Confirmation" name="Confirmation to customer" />
+  <bpmn:message id="Message_WeeklySettlement" name="Weekly settlement" />
+  <bpmn:message id="Message_ConcernReported" name="Concern reported" />
+  <bpmn:message id="Message_IncidentResponse" name="Incident response request" />
+  <bpmn:message id="Message_SafetyNotice" name="Safety notice" />
+  <bpmn:dataStore id="DataStore_Records" name="Customer, product and producer records" />
+  <bpmn:collaboration id="Collaboration_Strategic" name="Strategic BPMN: Bristol Regional Food Network">
+    <bpmn:participant id="Participant_Customers" name="Customers" processRef="Process_Customers" />
+    <bpmn:participant id="Participant_Marketplace" name="Marketplace" processRef="Process_Marketplace" />
+    <bpmn:participant id="Participant_Producers" name="Producers" processRef="Process_Producers" />
+    <bpmn:participant id="Participant_Payment" name="Payment service" />
+    <bpmn:participant id="Participant_Cert" name="Organic certification service" />
+    <bpmn:messageFlow id="MF_OrderPlaced" sourceRef="Task_PlaceOrder" targetRef="Start_OrderPlaced" messageRef="Message_OrderPlaced" />
+    <bpmn:messageFlow id="MF_Confirmation" name="Confirmation to customer" sourceRef="Sub_PaymentSettlement" targetRef="Task_ReceiveConfirmation" messageRef="Message_Confirmation" />
+    <bpmn:messageFlow id="MF_Concern" sourceRef="Task_ReportConcern" targetRef="Start_ConcernReported" messageRef="Message_ConcernReported" />
+    <bpmn:messageFlow id="MF_Safety" name="Safety notice" sourceRef="Sub_QualityIncident" targetRef="Start_SafetyNoticeReceived" messageRef="Message_SafetyNotice" />
+    <bpmn:messageFlow id="MF_Listing" name="Listing submitted" sourceRef="Task_ListProducts" targetRef="Start_ListingSubmitted" messageRef="Message_ListingSubmitted" />
+    <bpmn:messageFlow id="MF_ProducerOrder" sourceRef="Sub_OrderCheckout" targetRef="Task_PrepareOrders" messageRef="Message_ProducerOrder" />
+    <bpmn:messageFlow id="MF_Weekly" sourceRef="Sub_PaymentSettlement" targetRef="Task_ReceiveSettlement" messageRef="Message_WeeklySettlement" />
+    <bpmn:messageFlow id="MF_Incident" sourceRef="Sub_QualityIncident" targetRef="Start_IncidentRequested" messageRef="Message_IncidentResponse" />
+    <bpmn:messageFlow id="MF_CertRequest" name="Certification check request" sourceRef="Sub_ListManage" targetRef="Participant_Cert" messageRef="Message_CertCheckRequest" />
+    <bpmn:messageFlow id="MF_CertResult" name="Certification result" sourceRef="Participant_Cert" targetRef="Sub_ListManage" messageRef="Message_CertResult" />
+    <bpmn:messageFlow id="MF_PayRequest" name="Payment request" sourceRef="Sub_PaymentSettlement" targetRef="Participant_Payment" messageRef="Message_PaymentRequest" />
+    <bpmn:messageFlow id="MF_PayResult" name="Payment result" sourceRef="Participant_Payment" targetRef="Sub_PaymentSettlement" messageRef="Message_PaymentResult" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Customers" name="Customers" isExecutable="false">
+    <bpmn:task id="Task_Browse" name="Browse and search products">
+      <bpmn:incoming>F_c1</bpmn:incoming>
+      <bpmn:outgoing>F_c2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_PlaceOrder" name="Place order and pay">
+      <bpmn:incoming>F_c2</bpmn:incoming>
+      <bpmn:outgoing>F_c3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ReceiveConfirmation" name="Receive confirmation, delivery or collection">
+      <bpmn:incoming>F_c3</bpmn:incoming>
+      <bpmn:outgoing>F_c4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="F_c1" sourceRef="Start_NeedsLocalFood" targetRef="Task_Browse" />
+    <bpmn:sequenceFlow id="F_c2" sourceRef="Task_Browse" targetRef="Task_PlaceOrder" />
+    <bpmn:sequenceFlow id="F_c3" sourceRef="Task_PlaceOrder" targetRef="Task_ReceiveConfirmation" />
+    <bpmn:sequenceFlow id="F_c4" sourceRef="Task_ReceiveConfirmation" targetRef="End_NeedsMet" />
+    <bpmn:startEvent id="Start_SafetyNoticeReceived" name="Safety notice received">
+      <bpmn:outgoing>F_c7</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_Start_SafetyNoticeReceived" messageRef="Message_SafetyNotice" />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ActOnNotice" name="Act on safety notice">
+      <bpmn:incoming>F_c7</bpmn:incoming>
+      <bpmn:outgoing>F_c8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_NoticeActioned" name="Notice actioned">
+      <bpmn:incoming>F_c8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_c7" sourceRef="Start_SafetyNoticeReceived" targetRef="Task_ActOnNotice" />
+    <bpmn:sequenceFlow id="F_c8" sourceRef="Task_ActOnNotice" targetRef="End_NoticeActioned" />
+    <bpmn:startEvent id="Start_ConcernNoticed" name="Quality concern noticed">
+      <bpmn:outgoing>F_c5</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ReportConcern" name="Report food quality concern">
+      <bpmn:incoming>F_c5</bpmn:incoming>
+      <bpmn:outgoing>F_c6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_ConcernReported" name="Concern reported">
+      <bpmn:incoming>F_c6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_c5" sourceRef="Start_ConcernNoticed" targetRef="Task_ReportConcern" />
+    <bpmn:sequenceFlow id="F_c6" sourceRef="Task_ReportConcern" targetRef="End_ConcernReported" />
+    <bpmn:startEvent id="Start_NeedsLocalFood" name="Needs local food">
+      <bpmn:outgoing>F_c1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="End_NeedsMet" name="Needs met">
+      <bpmn:incoming>F_c4</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:process id="Process_Marketplace" name="Marketplace" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Marketplace">
+      <bpmn:lane id="Lane_Product" name="Product and Inventory Management">
+        <bpmn:flowNodeRef>Sub_ListManage</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_ProductsListed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Start_ListingSubmitted</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Order" name="Order and Checkout">
+        <bpmn:flowNodeRef>Start_OrderPlaced</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Sub_OrderCheckout</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Payment" name="Payments and Settlement">
+        <bpmn:flowNodeRef>Sub_PaymentSettlement</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_OrderConfirmed</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Quality" name="Quality and Traceability">
+        <bpmn:flowNodeRef>Start_ConcernReported</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Sub_QualityIncident</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Admin" name="Network Administration and Sustainability">
+        <bpmn:flowNodeRef>Start_Monthly</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_ReportsPublished</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_IncidentClosed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Sub_Community</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Sub_ReviewClose</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:sequenceFlow id="F_m5" sourceRef="Sub_PaymentSettlement" targetRef="End_OrderConfirmed" />
+    <bpmn:sequenceFlow id="F_m4" sourceRef="Sub_OrderCheckout" targetRef="Sub_PaymentSettlement" />
+    <bpmn:sequenceFlow id="F_m3" sourceRef="Start_OrderPlaced" targetRef="Sub_OrderCheckout" />
+    <bpmn:subProcess id="Sub_OrderCheckout" name="Order and checkout">
+      <bpmn:incoming>F_m3</bpmn:incoming>
+      <bpmn:outgoing>F_m4</bpmn:outgoing>
+      <bpmn:startEvent id="Sub_OrderCheckout_S" name="Start">
+        <bpmn:outgoing>Sub_OrderCheckout_F1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Sub_OrderCheckout_T" name="Placeholder: detail in Sprint 2">
+        <bpmn:incoming>Sub_OrderCheckout_F1</bpmn:incoming>
+        <bpmn:outgoing>Sub_OrderCheckout_F2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="Sub_OrderCheckout_E" name="End">
+        <bpmn:incoming>Sub_OrderCheckout_F2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Sub_OrderCheckout_F1" sourceRef="Sub_OrderCheckout_S" targetRef="Sub_OrderCheckout_T" />
+      <bpmn:sequenceFlow id="Sub_OrderCheckout_F2" sourceRef="Sub_OrderCheckout_T" targetRef="Sub_OrderCheckout_E" />
+    </bpmn:subProcess>
+    <bpmn:startEvent id="Start_OrderPlaced" name="Customer order placed">
+      <bpmn:outgoing>F_m3</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_Start_OrderPlaced" messageRef="Message_OrderPlaced" />
+    </bpmn:startEvent>
+    <bpmn:startEvent id="Start_Monthly" name="Monthly">
+      <bpmn:outgoing>F_m9</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TED_Start_Monthly" />
+    </bpmn:startEvent>
+    <bpmn:subProcess id="Sub_Community" name="Community and sustainability reporting">
+      <bpmn:incoming>F_m9</bpmn:incoming>
+      <bpmn:outgoing>F_m10</bpmn:outgoing>
+      <bpmn:startEvent id="Sub_Community_S" name="Start">
+        <bpmn:outgoing>Sub_Community_F1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Sub_Community_T" name="Placeholder: detail in Sprint 2">
+        <bpmn:incoming>Sub_Community_F1</bpmn:incoming>
+        <bpmn:outgoing>Sub_Community_F2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="Sub_Community_E" name="End">
+        <bpmn:incoming>Sub_Community_F2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Sub_Community_F1" sourceRef="Sub_Community_S" targetRef="Sub_Community_T" />
+      <bpmn:sequenceFlow id="Sub_Community_F2" sourceRef="Sub_Community_T" targetRef="Sub_Community_E" />
+    </bpmn:subProcess>
+    <bpmn:endEvent id="End_ReportsPublished" name="Reports and offers published">
+      <bpmn:incoming>F_m10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="Start_ConcernReported" name="Quality concern reported">
+      <bpmn:outgoing>F_m6</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_Start_ConcernReported" messageRef="Message_ConcernReported" />
+    </bpmn:startEvent>
+    <bpmn:subProcess id="Sub_QualityIncident" name="Quality incident handling">
+      <bpmn:incoming>F_m6</bpmn:incoming>
+      <bpmn:outgoing>F_m7</bpmn:outgoing>
+      <bpmn:property id="Property_Records" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DataInputAssociation_Records">
+        <bpmn:sourceRef>DataStoreRef_Records</bpmn:sourceRef>
+        <bpmn:targetRef>Property_Records</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:startEvent id="Sub_QualityIncident_S" name="Start">
+        <bpmn:outgoing>Sub_QualityIncident_F1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Sub_QualityIncident_T" name="Placeholder: detail in Sprint 2">
+        <bpmn:incoming>Sub_QualityIncident_F1</bpmn:incoming>
+        <bpmn:outgoing>Sub_QualityIncident_F2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="Sub_QualityIncident_E" name="End">
+        <bpmn:incoming>Sub_QualityIncident_F2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Sub_QualityIncident_F1" sourceRef="Sub_QualityIncident_S" targetRef="Sub_QualityIncident_T" />
+      <bpmn:sequenceFlow id="Sub_QualityIncident_F2" sourceRef="Sub_QualityIncident_T" targetRef="Sub_QualityIncident_E" />
+    </bpmn:subProcess>
+    <bpmn:dataStoreReference id="DataStoreRef_Records" name="Customer, product and producer records" dataStoreRef="DataStore_Records" />
+    <bpmn:subProcess id="Sub_ReviewClose" name="Review and close incident">
+      <bpmn:incoming>F_m7</bpmn:incoming>
+      <bpmn:outgoing>F_m8</bpmn:outgoing>
+      <bpmn:startEvent id="Sub_ReviewClose_S" name="Start">
+        <bpmn:outgoing>Sub_ReviewClose_F1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Sub_ReviewClose_T" name="Placeholder: detail in Sprint 2">
+        <bpmn:incoming>Sub_ReviewClose_F1</bpmn:incoming>
+        <bpmn:outgoing>Sub_ReviewClose_F2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="Sub_ReviewClose_E" name="End">
+        <bpmn:incoming>Sub_ReviewClose_F2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Sub_ReviewClose_F1" sourceRef="Sub_ReviewClose_S" targetRef="Sub_ReviewClose_T" />
+      <bpmn:sequenceFlow id="Sub_ReviewClose_F2" sourceRef="Sub_ReviewClose_T" targetRef="Sub_ReviewClose_E" />
+    </bpmn:subProcess>
+    <bpmn:endEvent id="End_IncidentClosed" name="Incident closed">
+      <bpmn:incoming>F_m8</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_m9" sourceRef="Start_Monthly" targetRef="Sub_Community" />
+    <bpmn:sequenceFlow id="F_m10" sourceRef="Sub_Community" targetRef="End_ReportsPublished" />
+    <bpmn:sequenceFlow id="F_m6" sourceRef="Start_ConcernReported" targetRef="Sub_QualityIncident" />
+    <bpmn:sequenceFlow id="F_m7" sourceRef="Sub_QualityIncident" targetRef="Sub_ReviewClose" />
+    <bpmn:sequenceFlow id="F_m8" sourceRef="Sub_ReviewClose" targetRef="End_IncidentClosed" />
+    <bpmn:subProcess id="Sub_PaymentSettlement" name="Payment and settlement">
+      <bpmn:incoming>F_m4</bpmn:incoming>
+      <bpmn:outgoing>F_m5</bpmn:outgoing>
+      <bpmn:startEvent id="Sub_PaymentSettlement_S" name="Start">
+        <bpmn:outgoing>Sub_PaymentSettlement_F1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Sub_PaymentSettlement_T" name="Placeholder: detail in Sprint 2">
+        <bpmn:incoming>Sub_PaymentSettlement_F1</bpmn:incoming>
+        <bpmn:outgoing>Sub_PaymentSettlement_F2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="Sub_PaymentSettlement_E" name="End">
+        <bpmn:incoming>Sub_PaymentSettlement_F2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Sub_PaymentSettlement_F1" sourceRef="Sub_PaymentSettlement_S" targetRef="Sub_PaymentSettlement_T" />
+      <bpmn:sequenceFlow id="Sub_PaymentSettlement_F2" sourceRef="Sub_PaymentSettlement_T" targetRef="Sub_PaymentSettlement_E" />
+    </bpmn:subProcess>
+    <bpmn:subProcess id="Sub_ListManage" name="List and manage products">
+      <bpmn:incoming>F_m1</bpmn:incoming>
+      <bpmn:outgoing>F_m2</bpmn:outgoing>
+      <bpmn:startEvent id="Sub_ListManage_S" name="Start">
+        <bpmn:outgoing>Sub_ListManage_F1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Sub_ListManage_T" name="Placeholder: detail in Sprint 2">
+        <bpmn:incoming>Sub_ListManage_F1</bpmn:incoming>
+        <bpmn:outgoing>Sub_ListManage_F2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:endEvent id="Sub_ListManage_E" name="End">
+        <bpmn:incoming>Sub_ListManage_F2</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Sub_ListManage_F1" sourceRef="Sub_ListManage_S" targetRef="Sub_ListManage_T" />
+      <bpmn:sequenceFlow id="Sub_ListManage_F2" sourceRef="Sub_ListManage_T" targetRef="Sub_ListManage_E" />
+    </bpmn:subProcess>
+    <bpmn:endEvent id="End_ProductsListed" name="Products listed and in stock">
+      <bpmn:incoming>F_m2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_m1" sourceRef="Start_ListingSubmitted" targetRef="Sub_ListManage" />
+    <bpmn:sequenceFlow id="F_m2" sourceRef="Sub_ListManage" targetRef="End_ProductsListed" />
+    <bpmn:startEvent id="Start_ListingSubmitted" name="Listing submitted">
+      <bpmn:outgoing>F_m1</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_Start_ListingSubmitted" messageRef="Message_ListingSubmitted" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="End_OrderConfirmed" name="Order confirmed and producers paid">
+      <bpmn:incoming>F_m5</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:process id="Process_Producers" name="Producers" isExecutable="false">
+    <bpmn:startEvent id="Start_HasProduce" name="Has produce to sell">
+      <bpmn:outgoing>F_p1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ListProducts" name="List products and update seasonal stock">
+      <bpmn:incoming>F_p1</bpmn:incoming>
+      <bpmn:outgoing>F_p2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_PrepareOrders" name="Receive and prepare orders (48h notice)">
+      <bpmn:incoming>F_p2</bpmn:incoming>
+      <bpmn:outgoing>F_p3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ReceiveSettlement" name="Receive weekly settlement">
+      <bpmn:incoming>F_p3</bpmn:incoming>
+      <bpmn:outgoing>F_p4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:startEvent id="Start_IncidentRequested" name="Incident response requested">
+      <bpmn:outgoing>F_p5</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MED_Start_IncidentRequested" messageRef="Message_IncidentResponse" />
+    </bpmn:startEvent>
+    <bpmn:task id="Task_RespondIncident" name="Respond to quality incident">
+      <bpmn:incoming>F_p5</bpmn:incoming>
+      <bpmn:outgoing>F_p6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_IncidentResponded" name="Incident responded">
+      <bpmn:incoming>F_p6</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_p1" sourceRef="Start_HasProduce" targetRef="Task_ListProducts" />
+    <bpmn:sequenceFlow id="F_p2" sourceRef="Task_ListProducts" targetRef="Task_PrepareOrders" />
+    <bpmn:sequenceFlow id="F_p3" sourceRef="Task_PrepareOrders" targetRef="Task_ReceiveSettlement" />
+    <bpmn:sequenceFlow id="F_p4" sourceRef="Task_ReceiveSettlement" targetRef="End_ProduceSold" />
+    <bpmn:sequenceFlow id="F_p5" sourceRef="Start_IncidentRequested" targetRef="Task_RespondIncident" />
+    <bpmn:sequenceFlow id="F_p6" sourceRef="Task_RespondIncident" targetRef="End_IncidentResponded" />
+    <bpmn:endEvent id="End_ProduceSold" name="Produce sold">
+      <bpmn:incoming>F_p4</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Main">
+    <bpmndi:BPMNPlane id="BPMNPlane_Main" bpmnElement="Collaboration_Strategic">
+      <bpmndi:BPMNShape id="Participant_Customers_di" bpmnElement="Participant_Customers" isHorizontal="true">
+        <dc:Bounds x="160" y="40" width="1590" height="130" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Browse_di" bpmnElement="Task_Browse">
+        <dc:Bounds x="360" y="65" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PlaceOrder_di" bpmnElement="Task_PlaceOrder">
+        <dc:Bounds x="600" y="65" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveConfirmation_di" bpmnElement="Task_ReceiveConfirmation">
+        <dc:Bounds x="935" y="65" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_SafetyNoticeReceived_di" bpmnElement="Start_SafetyNoticeReceived">
+        <dc:Bounds x="1466" y="87" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1452" y="56" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ActOnNotice_di" bpmnElement="Task_ActOnNotice">
+        <dc:Bounds x="1524" y="65" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_NoticeActioned_di" bpmnElement="End_NoticeActioned">
+        <dc:Bounds x="1666" y="87" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1646" y="127" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_ConcernNoticed_di" bpmnElement="Start_ConcernNoticed">
+        <dc:Bounds x="1169" y="87" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1149" y="127" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReportConcern_di" bpmnElement="Task_ReportConcern">
+        <dc:Bounds x="1237" y="65" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ConcernReported_di" bpmnElement="End_ConcernReported">
+        <dc:Bounds x="1369" y="87" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1344" y="127" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_NeedsLocalFood_di" bpmnElement="Start_NeedsLocalFood">
+        <dc:Bounds x="232" y="87" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="209" y="127" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_NeedsMet_di" bpmnElement="End_NeedsMet">
+        <dc:Bounds x="1082" y="87" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1073" y="127" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_c1_di" bpmnElement="F_c1">
+        <di:waypoint x="268" y="105" />
+        <di:waypoint x="360" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_c2_di" bpmnElement="F_c2">
+        <di:waypoint x="460" y="105" />
+        <di:waypoint x="600" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_c3_di" bpmnElement="F_c3">
+        <di:waypoint x="700" y="105" />
+        <di:waypoint x="935" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_c4_di" bpmnElement="F_c4">
+        <di:waypoint x="1035" y="105" />
+        <di:waypoint x="1082" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_c7_di" bpmnElement="F_c7">
+        <di:waypoint x="1502" y="105" />
+        <di:waypoint x="1524" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_c8_di" bpmnElement="F_c8">
+        <di:waypoint x="1624" y="105" />
+        <di:waypoint x="1666" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_c5_di" bpmnElement="F_c5">
+        <di:waypoint x="1205" y="105" />
+        <di:waypoint x="1237" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_c6_di" bpmnElement="F_c6">
+        <di:waypoint x="1337" y="105" />
+        <di:waypoint x="1369" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Marketplace_di" bpmnElement="Participant_Marketplace" isHorizontal="true">
+        <dc:Bounds x="160" y="220" width="1590" height="729" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Admin_di" bpmnElement="Lane_Admin" isHorizontal="true">
+        <dc:Bounds x="190" y="810" width="1560" height="139" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Quality_di" bpmnElement="Lane_Quality" isHorizontal="true">
+        <dc:Bounds x="190" y="700" width="1560" height="110" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Payment_di" bpmnElement="Lane_Payment" isHorizontal="true">
+        <dc:Bounds x="190" y="530" width="1560" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Order_di" bpmnElement="Lane_Order" isHorizontal="true">
+        <dc:Bounds x="190" y="410" width="1560" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Product_di" bpmnElement="Lane_Product" isHorizontal="true">
+        <dc:Bounds x="190" y="220" width="1560" height="190" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_OrderCheckout_di" bpmnElement="Sub_OrderCheckout" isExpanded="false" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="730" y="430" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_OrderPlaced_di" bpmnElement="Start_OrderPlaced">
+        <dc:Bounds x="632" y="452" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="612" y="492" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Monthly_di" bpmnElement="Start_Monthly">
+        <dc:Bounds x="382" y="860" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="381" y="900" width="39" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_Community_di" bpmnElement="Sub_Community" isExpanded="false">
+        <dc:Bounds x="460" y="838" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ReportsPublished_di" bpmnElement="End_ReportsPublished">
+        <dc:Bounds x="662" y="860" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="641" y="900" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_ConcernReported_di" bpmnElement="Start_ConcernReported">
+        <dc:Bounds x="1321" y="740" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1301" y="780" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_QualityIncident_di" bpmnElement="Sub_QualityIncident" isExpanded="false">
+        <dc:Bounds x="1419" y="718" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStoreRef_Records_di" bpmnElement="DataStoreRef_Records">
+        <dc:Bounds x="1579" y="733" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1639" y="748" width="90" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_ReviewClose_di" bpmnElement="Sub_ReviewClose" isExpanded="false">
+        <dc:Bounds x="1469" y="838" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_IncidentClosed_di" bpmnElement="End_IncidentClosed">
+        <dc:Bounds x="1651" y="860" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1632" y="900" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_PaymentSettlement_di" bpmnElement="Sub_PaymentSettlement" isExpanded="false" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="920" y="601" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_ListManage_di" bpmnElement="Sub_ListManage" isExpanded="false">
+        <dc:Bounds x="374" y="292" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ProductsListed_di" bpmnElement="End_ProductsListed">
+        <dc:Bounds x="421" y="234" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="462" y="238" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_ListingSubmitted_di" bpmnElement="Start_ListingSubmitted">
+        <dc:Bounds x="312" y="314" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="289" y="283" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_OrderConfirmed_di" bpmnElement="End_OrderConfirmed">
+        <dc:Bounds x="702" y="612" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="680" y="652" width="80" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_m5_di" bpmnElement="F_m5">
+        <di:waypoint x="920" y="650" />
+        <di:waypoint x="850" y="650" />
+        <di:waypoint x="850" y="630" />
+        <di:waypoint x="738" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m4_di" bpmnElement="F_m4">
+        <di:waypoint x="860" y="470" />
+        <di:waypoint x="890" y="470" />
+        <di:waypoint x="890" y="620" />
+        <di:waypoint x="920" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m3_di" bpmnElement="F_m3">
+        <di:waypoint x="668" y="470" />
+        <di:waypoint x="730" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m9_di" bpmnElement="F_m9">
+        <di:waypoint x="418" y="878" />
+        <di:waypoint x="460" y="878" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m10_di" bpmnElement="F_m10">
+        <di:waypoint x="590" y="878" />
+        <di:waypoint x="662" y="878" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m6_di" bpmnElement="F_m6">
+        <di:waypoint x="1357" y="758" />
+        <di:waypoint x="1419" y="758" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m7_di" bpmnElement="F_m7">
+        <di:waypoint x="1509" y="798" />
+        <di:waypoint x="1509" y="838" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m8_di" bpmnElement="F_m8">
+        <di:waypoint x="1599" y="878" />
+        <di:waypoint x="1651" y="878" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m1_di" bpmnElement="F_m1">
+        <di:waypoint x="348" y="332" />
+        <di:waypoint x="374" y="332" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_m2_di" bpmnElement="F_m2">
+        <di:waypoint x="439" y="292" />
+        <di:waypoint x="439" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Producers_di" bpmnElement="Participant_Producers" isHorizontal="true">
+        <dc:Bounds x="160" y="1010" width="1500" height="130" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_HasProduce_di" bpmnElement="Start_HasProduce">
+        <dc:Bounds x="212" y="1057" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="185" y="1097" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ListProducts_di" bpmnElement="Task_ListProducts">
+        <dc:Bounds x="280" y="1035" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PrepareOrders_di" bpmnElement="Task_PrepareOrders">
+        <dc:Bounds x="745" y="1035" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveSettlement_di" bpmnElement="Task_ReceiveSettlement">
+        <dc:Bounds x="935" y="1035" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_IncidentRequested_di" bpmnElement="Start_IncidentRequested">
+        <dc:Bounds x="1307" y="1057" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1280" y="1097" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RespondIncident_di" bpmnElement="Task_RespondIncident">
+        <dc:Bounds x="1360" y="1035" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_IncidentResponded_di" bpmnElement="End_IncidentResponded">
+        <dc:Bounds x="1512" y="1057" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1485" y="1097" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_ProduceSold_di" bpmnElement="End_ProduceSold">
+        <dc:Bounds x="1088" y="1057" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1074" y="1097" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="F_p1_di" bpmnElement="F_p1">
+        <di:waypoint x="248" y="1075" />
+        <di:waypoint x="280" y="1075" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_p2_di" bpmnElement="F_p2">
+        <di:waypoint x="380" y="1075" />
+        <di:waypoint x="745" y="1075" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_p3_di" bpmnElement="F_p3">
+        <di:waypoint x="845" y="1075" />
+        <di:waypoint x="935" y="1075" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_p4_di" bpmnElement="F_p4">
+        <di:waypoint x="1035" y="1075" />
+        <di:waypoint x="1088" y="1075" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_p5_di" bpmnElement="F_p5">
+        <di:waypoint x="1343" y="1075" />
+        <di:waypoint x="1360" y="1075" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="F_p6_di" bpmnElement="F_p6">
+        <di:waypoint x="1460" y="1075" />
+        <di:waypoint x="1512" y="1075" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Payment_di" bpmnElement="Participant_Payment" isHorizontal="true">
+        <dc:Bounds x="1783" y="577" width="300" height="90" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_Cert_di" bpmnElement="Participant_Cert" isHorizontal="true">
+        <dc:Bounds x="1783" y="292" width="300" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="DataInputAssociation_Records_di" bpmnElement="DataInputAssociation_Records">
+        <di:waypoint x="1579" y="758" />
+        <di:waypoint x="1549" y="758" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_OrderPlaced_di" bpmnElement="MF_OrderPlaced">
+        <di:waypoint x="650" y="145" />
+        <di:waypoint x="650" y="452" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="662" y="223" width="112" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Confirmation_di" bpmnElement="MF_Confirmation">
+        <di:waypoint x="985" y="601" />
+        <di:waypoint x="985" y="145" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="982" y="186" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Concern_di" bpmnElement="MF_Concern">
+        <di:waypoint x="1287" y="145" />
+        <di:waypoint x="1287" y="510" />
+        <di:waypoint x="1339" y="510" />
+        <di:waypoint x="1339" y="740" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1349" y="545" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Safety_di" bpmnElement="MF_Safety">
+        <di:waypoint x="1484" y="718" />
+        <di:waypoint x="1484" y="123" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1488" y="193" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Listing_di" bpmnElement="MF_Listing">
+        <di:waypoint x="330" y="1035" />
+        <di:waypoint x="330" y="350" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="337" y="983" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_ProducerOrder_di" bpmnElement="MF_ProducerOrder">
+        <di:waypoint x="795" y="510" />
+        <di:waypoint x="795" y="1035" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="811" y="930" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Weekly_di" bpmnElement="MF_Weekly">
+        <di:waypoint x="985" y="681" />
+        <di:waypoint x="985" y="1035" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="993" y="930" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_Incident_di" bpmnElement="MF_Incident">
+        <di:waypoint x="1440" y="798" />
+        <di:waypoint x="1440" y="880" />
+        <di:waypoint x="1325" y="880" />
+        <di:waypoint x="1325" y="1057" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1326" y="831" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_CertRequest_di" bpmnElement="MF_CertRequest">
+        <di:waypoint x="504" y="312" />
+        <di:waypoint x="1783" y="312" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1593" y="292" width="130" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_CertResult_di" bpmnElement="MF_CertResult">
+        <di:waypoint x="1783" y="364" />
+        <di:waypoint x="503" y="364" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1594" y="368" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_PayRequest_di" bpmnElement="MF_PayRequest">
+        <di:waypoint x="1049" y="609" />
+        <di:waypoint x="1783" y="609" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1591" y="589" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MF_PayResult_di" bpmnElement="MF_PayResult">
+        <di:waypoint x="1783" y="654" />
+        <di:waypoint x="1050" y="654" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1597" y="658" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Sub_ListManage">
+    <bpmndi:BPMNPlane id="BPMNPlane_Sub_ListManage" bpmnElement="Sub_ListManage">
+      <bpmndi:BPMNShape id="Sub_ListManage_S_di" bpmnElement="Sub_ListManage_S">
+        <dc:Bounds x="200" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="185" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_ListManage_T_di" bpmnElement="Sub_ListManage_T">
+        <dc:Bounds x="290" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_ListManage_E_di" bpmnElement="Sub_ListManage_E">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="185" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Sub_ListManage_F1_di" bpmnElement="Sub_ListManage_F1">
+        <di:waypoint x="236" y="160" />
+        <di:waypoint x="290" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Sub_ListManage_F2_di" bpmnElement="Sub_ListManage_F2">
+        <di:waypoint x="430" y="160" />
+        <di:waypoint x="492" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Sub_OrderCheckout">
+    <bpmndi:BPMNPlane id="BPMNPlane_Sub_OrderCheckout" bpmnElement="Sub_OrderCheckout">
+      <bpmndi:BPMNShape id="Sub_OrderCheckout_S_di" bpmnElement="Sub_OrderCheckout_S">
+        <dc:Bounds x="200" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="185" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_OrderCheckout_T_di" bpmnElement="Sub_OrderCheckout_T">
+        <dc:Bounds x="290" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_OrderCheckout_E_di" bpmnElement="Sub_OrderCheckout_E">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="185" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Sub_OrderCheckout_F1_di" bpmnElement="Sub_OrderCheckout_F1">
+        <di:waypoint x="236" y="160" />
+        <di:waypoint x="290" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Sub_OrderCheckout_F2_di" bpmnElement="Sub_OrderCheckout_F2">
+        <di:waypoint x="430" y="160" />
+        <di:waypoint x="492" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Sub_PaymentSettlement">
+    <bpmndi:BPMNPlane id="BPMNPlane_Sub_PaymentSettlement" bpmnElement="Sub_PaymentSettlement">
+      <bpmndi:BPMNShape id="Sub_PaymentSettlement_S_di" bpmnElement="Sub_PaymentSettlement_S">
+        <dc:Bounds x="200" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="185" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_PaymentSettlement_T_di" bpmnElement="Sub_PaymentSettlement_T">
+        <dc:Bounds x="290" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_PaymentSettlement_E_di" bpmnElement="Sub_PaymentSettlement_E">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="185" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Sub_PaymentSettlement_F1_di" bpmnElement="Sub_PaymentSettlement_F1">
+        <di:waypoint x="236" y="160" />
+        <di:waypoint x="290" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Sub_PaymentSettlement_F2_di" bpmnElement="Sub_PaymentSettlement_F2">
+        <di:waypoint x="430" y="160" />
+        <di:waypoint x="492" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Sub_QualityIncident">
+    <bpmndi:BPMNPlane id="BPMNPlane_Sub_QualityIncident" bpmnElement="Sub_QualityIncident">
+      <bpmndi:BPMNShape id="Sub_QualityIncident_S_di" bpmnElement="Sub_QualityIncident_S">
+        <dc:Bounds x="200" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="185" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_QualityIncident_T_di" bpmnElement="Sub_QualityIncident_T">
+        <dc:Bounds x="290" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_QualityIncident_E_di" bpmnElement="Sub_QualityIncident_E">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="185" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Sub_QualityIncident_F1_di" bpmnElement="Sub_QualityIncident_F1">
+        <di:waypoint x="236" y="160" />
+        <di:waypoint x="290" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Sub_QualityIncident_F2_di" bpmnElement="Sub_QualityIncident_F2">
+        <di:waypoint x="430" y="160" />
+        <di:waypoint x="492" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Sub_ReviewClose">
+    <bpmndi:BPMNPlane id="BPMNPlane_Sub_ReviewClose" bpmnElement="Sub_ReviewClose">
+      <bpmndi:BPMNShape id="Sub_ReviewClose_S_di" bpmnElement="Sub_ReviewClose_S">
+        <dc:Bounds x="200" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="185" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_ReviewClose_T_di" bpmnElement="Sub_ReviewClose_T">
+        <dc:Bounds x="290" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_ReviewClose_E_di" bpmnElement="Sub_ReviewClose_E">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="185" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Sub_ReviewClose_F1_di" bpmnElement="Sub_ReviewClose_F1">
+        <di:waypoint x="236" y="160" />
+        <di:waypoint x="290" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Sub_ReviewClose_F2_di" bpmnElement="Sub_ReviewClose_F2">
+        <di:waypoint x="430" y="160" />
+        <di:waypoint x="492" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Sub_Community">
+    <bpmndi:BPMNPlane id="BPMNPlane_Sub_Community" bpmnElement="Sub_Community">
+      <bpmndi:BPMNShape id="Sub_Community_S_di" bpmnElement="Sub_Community_S">
+        <dc:Bounds x="200" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="185" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_Community_T_di" bpmnElement="Sub_Community_T">
+        <dc:Bounds x="290" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Sub_Community_E_di" bpmnElement="Sub_Community_E">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="500" y="185" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Sub_Community_F1_di" bpmnElement="Sub_Community_F1">
+        <di:waypoint x="236" y="160" />
+        <di:waypoint x="290" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Sub_Community_F2_di" bpmnElement="Sub_Community_F2">
+        <di:waypoint x="430" y="160" />
+        <di:waypoint x="492" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
