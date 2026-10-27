@@ -65,15 +65,13 @@ All three segments share one flow at the strategic level.
 
 **Differences between segments**
 
-| Segment                           | Specific needs                                                                             | Responsibilities or dependencies                              |
-| --------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| Young professionals and families  | Buy locally sourced produce without visiting farm shops during their limited opening hours | Clearly visible produce origin, so they can trust it is local |
-| Community groups                  | Reliable and consistent sources of local produce                                           | None identified                                               |
-| Independent restaurants and cafes | Source locally without administrative overhead of managing many small suppliers            | Adapt menus to seasonal produce (case study: "producers to list items with seasonal availability", **TO CONFIRM**), these cafes and restaurants could choose to not include seasonal products in their menus in the first place        |
+| Segment                           | Specific needs                                                                             | Responsibilities or dependencies                                                                                                                                                                               |
+| --------------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Young professionals and families  | Buy locally sourced produce without visiting farm shops during their limited opening hours | Clearly visible produce origin, so they can trust it is local                                                                                                                                                  |
+| Community groups                  | Reliable and consistent sources of local produce                                           | None identified                                                                                                                                                                                                |
+| Independent restaurants and cafes | Source locally without administrative overhead of managing many small suppliers            | Adapt menus to seasonal produce (case study: "producers to list items with seasonal availability", these cafes and restaurants could choose to not include seasonal products in their menus in the first place |
 
 ### Network or platform admin
-
-The case study describes platform duties, and the admin role only appears in Use Case 3. Which duties belong to the system and which to a human administrator is **TO CONFIRM**.
 
 **Needs**
 
@@ -119,7 +117,7 @@ Each process maps to a lane in the marketplace pool of the strategic BPMN. Proce
 | 2. Order and checkout (multi-vendor)           | Order and checkout                                                                 | Customers, platform, producers (receive their orders)                  | None                  | Functionality 1: Checkout and Order processing (use case 2)                                        |
 | 3. Payment, commission and producer settlement | Payments and settlements                                                           | Customers, platform, producers (weekly settlement), admin (commission) | Payment service       | Functionality 2: Payment processing and settlement (use case 2)                                    |
 | 4. Quality incident and traceability           | Quality and traceability, with review in Network administration and sustainability | Customers, producers, admin                                            | None                  | Enterprise context, not implemented (use case 3)                                                   |
-| 5. Community and sustainability features       | Network administration and sustainability                                          | Producers, admin, customers                     | None                  | Enterprise context,  implemented (Case study: food miles, surplus discounts, educational content) |
+| 5. Community and sustainability features       | Network administration and sustainability                                          | Producers, admin, customers                                            | None                  | Enterprise context,  implemented (Case study: food miles, surplus discounts, educational content) |
 
 #### How the processes connect - simplified at strategic level
 
@@ -132,7 +130,7 @@ Each process maps to a lane in the marketplace pool of the strategic BPMN. Proce
 
 - All three customer segments follow one flow at strategic level - modelling
 - Browsing and searching are the entry steps of order and checkout, not a separate process - modelling
-- Delivery and collection sit inside checkout and fulfilment, with each producer responsible for its own arrangements  - case study: "individual supplier responsibilities, delivery arrangements and collection procedures" 
-- The 5% commission is deducted from producer payments at weekly settlement - case study: Commission calculated automatically, payments distributed on agreed timeframes 
+- Delivery and collection sit inside checkout and fulfilment, with each producer responsible for its own arrangements  - case study: "individual supplier responsibilities, delivery arrangements and collection procedures"
+- The 5% commission is deducted from producer payments at weekly settlement - case study: Commission calculated automatically, payments distributed on agreed timeframes
 - The strategic BPMN shows only customers reporting quality concerns for readability, although use case 3 allows producers and admins to report.
-- Producers have a device and internet access to use the platform - not stated in the case study - but the producers need to use the platform somehow **TO CONFIRM**
+- Producers have a device and internet access to use the platform.
