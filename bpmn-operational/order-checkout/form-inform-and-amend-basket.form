@@ -1,0 +1,59 @@
+{
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "exporter": {
+    "name": "Camunda Web Modeler",
+    "version": "64767e4"
+  },
+  "schemaVersion": 16,
+  "id": "form-inform-and-amend-basket",
+  "components": [
+    {
+      "text": "### Stock Shortage Notice — Amend Basket\nOne or more items in your basket exceed available producer stock. Amend quantities below or flag an unavailable product to remove/replace it.",
+      "type": "text",
+      "id": "Field_Header_Amend",
+      "layout": {
+        "row": "Row_0",
+        "columns": null
+      }
+    },
+    {
+      "label": "Basket ID",
+      "type": "textfield",
+      "id": "Field_BasketId_Amend",
+      "key": "basketId",
+      "readonly": true,
+      "layout": {
+        "row": "Row_1",
+        "columns": null
+      }
+    },
+    {
+      "label": "Amended Quantities",
+      "type": "textfield",
+      "id": "Field_AmendedQuantities",
+      "key": "amendedQuantities",
+      "description": "Enter updated basket quantities (e.g., apples: 2, sourdough: 1)",
+      "validate": {
+        "required": true
+      },
+      "layout": {
+        "row": "Row_2",
+        "columns": null
+      }
+    },
+    {
+      "label": "Product is completely unavailable (remove or replace item instead)",
+      "type": "checkbox",
+      "id": "Field_UnavailableProduct",
+      "key": "unavailableProduct",
+      "description": "Checked = true routes 'Unavailable product?' gateway to 'Remove or replace unavailable product'",
+      "defaultValue": false,
+      "layout": {
+        "row": "Row_3",
+        "columns": null
+      }
+    }
+  ],
+  "type": "default"
+}

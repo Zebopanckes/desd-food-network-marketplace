@@ -1,0 +1,80 @@
+{
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "exporter": {
+    "name": "Camunda Web Modeler",
+    "version": "64767e4"
+  },
+  "schemaVersion": 16,
+  "id": "form-remove-or-replace-product",
+  "components": [
+    {
+      "text": "### Remove or Replace Unavailable Product\nSelect whether to remove the out-of-stock item from your basket or substitute it with an alternative producer product.",
+      "type": "text",
+      "id": "Field_Header_Replace",
+      "layout": {
+        "row": "Row_0",
+        "columns": null
+      }
+    },
+    {
+      "label": "Basket ID",
+      "type": "textfield",
+      "id": "Field_BasketId_Replace",
+      "key": "basketId",
+      "readonly": true,
+      "layout": {
+        "row": "Row_1",
+        "columns": null
+      }
+    },
+    {
+      "label": "Replacement Choice",
+      "type": "radio",
+      "id": "Field_ReplacementChoice",
+      "key": "replacementChoice",
+      "defaultValue": "replace",
+      "values": [
+        {
+          "label": "Replace unavailable product with alternative",
+          "value": "replace"
+        },
+        {
+          "label": "Remove unavailable product from basket",
+          "value": "remove"
+        }
+      ],
+      "validate": {
+        "required": true
+      },
+      "layout": {
+        "row": "Row_2",
+        "columns": null
+      }
+    },
+    {
+      "label": "Replacement Product ID (if replacing)",
+      "type": "textfield",
+      "id": "Field_ReplacementProductId",
+      "key": "replacementProductId",
+      "description": "Leave blank if removing the product",
+      "layout": {
+        "row": "Row_3",
+        "columns": null
+      }
+    },
+    {
+      "label": "Clear unavailable product flag after update",
+      "type": "checkbox",
+      "id": "Field_ClearUnavailableFlag",
+      "key": "unavailableProduct",
+      "description": "Uncheck (false) once the unavailable product has been removed or replaced",
+      "defaultValue": false,
+      "layout": {
+        "row": "Row_4",
+        "columns": null
+      }
+    }
+  ],
+  "type": "default"
+}

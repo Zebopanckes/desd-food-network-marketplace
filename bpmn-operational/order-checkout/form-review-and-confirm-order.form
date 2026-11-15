@@ -1,0 +1,83 @@
+{
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "exporter": {
+    "name": "Camunda Web Modeler",
+    "version": "64767e4"
+  },
+  "schemaVersion": 16,
+  "id": "form-review-and-confirm-order",
+  "components": [
+    {
+      "text": "### Review and Confirm Order\nReview the producer breakdown and system-calculated delivery or collection arrangements before confirming your order.",
+      "type": "text",
+      "id": "Field_Header_Review",
+      "layout": {
+        "row": "Row_0",
+        "columns": null
+      }
+    },
+    {
+      "label": "Basket ID",
+      "type": "textfield",
+      "id": "Field_BasketId_Review",
+      "key": "basketId",
+      "readonly": true,
+      "layout": {
+        "row": "Row_1",
+        "columns": null
+      }
+    },
+    {
+      "label": "Delivery or Collection Arrangements Summary",
+      "type": "textfield",
+      "id": "Field_DeliverySummary",
+      "key": "deliveryArrangementsSummary",
+      "description": "Populated by Determine delivery or collection arrangements service task",
+      "readonly": true,
+      "layout": {
+        "row": "Row_2",
+        "columns": null
+      }
+    },
+    {
+      "label": "Confirm order and proceed to payment",
+      "type": "checkbox",
+      "id": "Field_CustomerConfirmed",
+      "key": "customerConfirmed",
+      "description": "Checked = true (routes 'Customer confirmed?' gateway to Order creation and retry)",
+      "defaultValue": true,
+      "layout": {
+        "row": "Row_3",
+        "columns": null
+      }
+    },
+    {
+      "label": "If not confirming, select action",
+      "type": "select",
+      "id": "Field_CustomerDecision",
+      "key": "customerDecision",
+      "description": "Set to 'amend' to loop back to stock check, or leave empty / 'cancel' when unchecking confirm",
+      "defaultValue": "",
+      "values": [
+        {
+          "label": "Proceed with confirmed order (leave empty)",
+          "value": ""
+        },
+        {
+          "label": "Amend basket (return to stock check)",
+          "value": "amend"
+        },
+        {
+          "label": "Cancel checkout",
+          "value": "cancel"
+        }
+      ],
+      "layout": {
+        "row": "Row_4",
+        "columns": null
+      }
+    }
+  ],
+  "type": "default"
+}

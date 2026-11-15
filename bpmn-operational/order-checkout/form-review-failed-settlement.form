@@ -1,0 +1,45 @@
+{
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.10.0",
+  "exporter": {
+    "name": "Camunda Web Modeler",
+    "version": "64767e4"
+  },
+  "schemaVersion": 16,
+  "id": "form-review-failed-settlement",
+  "components": [
+    {
+      "text": "### Review Failed Weekly Producer Settlement\nInspect the settlement failure details and decide whether to retry the settlement batch or flag it for manual follow-up.",
+      "type": "text",
+      "id": "Field_Header_Settlement",
+      "layout": {
+        "row": "Row_0",
+        "columns": null
+      }
+    },
+    {
+      "label": "Settlement Batch ID",
+      "type": "textfield",
+      "id": "Field_SettlementBatchId",
+      "key": "settlementBatchId",
+      "readonly": true,
+      "layout": {
+        "row": "Row_1",
+        "columns": null
+      }
+    },
+    {
+      "label": "Retry failed settlement batch",
+      "type": "checkbox",
+      "id": "Field_RetrySettlement",
+      "key": "retrySettlement",
+      "description": "Checked = true routes 'Retry settlement?' gateway to 'Retry failed settlements' (while settlementRetryCount < 3)",
+      "defaultValue": true,
+      "layout": {
+        "row": "Row_2",
+        "columns": null
+      }
+    }
+  ],
+  "type": "default"
+}
