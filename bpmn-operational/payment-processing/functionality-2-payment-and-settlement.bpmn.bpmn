@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="64767e4" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="64767e4" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.9.0">
   <bpmn:error id="Error_0p8n3f2" name="ProducerNotificationFailed" errorCode="ERR_PRODUCER_NOTIFY" />
   <bpmn:message id="Message_1p7r3m9" name="Payment requested">
     <bpmn:extensionElements>
@@ -8,17 +8,12 @@
   </bpmn:message>
   <bpmn:message id="Message_0p4r9s2" name="Payment result">
     <bpmn:extensionElements>
-      <zeebe:subscription correlationKey="=orderId" />
-    </bpmn:extensionElements>
-  </bpmn:message>
-  <bpmn:message id="Message_1c6d3r8" name="Retry or cancel decision">
-    <bpmn:extensionElements>
-      <zeebe:subscription correlationKey="=orderId" />
+      <zeebe:subscription correlationKey="=paymentRequestId" />
     </bpmn:extensionElements>
   </bpmn:message>
   <bpmn:message id="Message_0s8r2m4" name="Settlement result">
     <bpmn:extensionElements>
-      <zeebe:subscription correlationKey="=settlementBatchId" />
+      <zeebe:subscription correlationKey="=settlementRequestId" />
     </bpmn:extensionElements>
   </bpmn:message>
   <bpmn:collaboration id="Collaboration_0mt26n6">
@@ -36,7 +31,6 @@
     <bpmn:messageFlow id="Flow_14qja34" name="Weekly settlement" sourceRef="Activity_0g9x8iz" targetRef="Participant_1wfa956" />
     <bpmn:messageFlow id="Flow_1mtowbh" name="Settlement retry request" sourceRef="Activity_1jjppln" targetRef="Participant_02w12da" />
     <bpmn:messageFlow id="Flow_1sibwfg" name="Payment declined notice" sourceRef="Activity_1fcdhs8" targetRef="Participant_052xb10" />
-    <bpmn:messageFlow id="Flow_1wsbmdz" name="Retry or cancel decision" sourceRef="Participant_052xb10" targetRef="Event_1518y8h" />
     <bpmn:messageFlow id="Flow_0sdz6h2" name="Payment unavailable notice" sourceRef="Activity_0r2yijp" targetRef="Participant_052xb10" />
     <bpmn:messageFlow id="Flow_1975j1q" name="Retried producer order" sourceRef="Activity_0sd3hei" targetRef="Participant_1wfa956" />
     <bpmn:messageFlow id="Flow_0m3d8s2" name="Deduct stock" sourceRef="Activity_06hysle" targetRef="Participant_1s6t3k8" />
@@ -68,6 +62,7 @@
         <bpmn:flowNodeRef>Activity_0r2yijp</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_0rw679i</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_1518y8h</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_payment_decision_timeout</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1murdgd</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0ony9r5</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0r8l2s4</bpmn:flowNodeRef>
@@ -83,6 +78,7 @@
         <bpmn:flowNodeRef>Activity_10xhfgd</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1bvt51m</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Event_0opm2xd</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_settlement_timeout</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1e7icdg</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0yc85u4</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1jjppln</bpmn:flowNodeRef>
@@ -139,6 +135,7 @@
         <zeebe:taskDefinition type="notify-customer-payment-decline" retries="3" />
         <zeebe:ioMapping>
           <zeebe:output source="= paymentRetryCount + 1" target="paymentRetryCount" />
+          <zeebe:output source="= paymentFailureReason" target="paymentFailureReason" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1evabmh</bpmn:incoming>
@@ -156,6 +153,7 @@
         <zeebe:taskDefinition type="record-payment-service-unavailable" retries="3" />
         <zeebe:ioMapping>
           <zeebe:output source="= paymentRetryCount + 1" target="paymentRetryCount" />
+          <zeebe:output source="= paymentFailureReason" target="paymentFailureReason" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_037fgi1</bpmn:incoming>
@@ -173,12 +171,21 @@
       <bpmn:incoming>Flow_122zdr9</bpmn:incoming>
       <bpmn:outgoing>Flow_1649jwv</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:intermediateCatchEvent id="Event_1518y8h" name="Customer decision received">
+    <bpmn:userTask id="Event_1518y8h" name="Review payment issue and retry or cancel">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="form-retry-or-cancel-payment" />
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1649jwv</bpmn:incoming>
       <bpmn:outgoing>Flow_0rxly45</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1jean46" messageRef="Message_1c6d3r8" />
-    </bpmn:intermediateCatchEvent>
-    <bpmn:exclusiveGateway id="Gateway_1murdgd" name="Retry payment? (retryCount &#60; 3)" default="Flow_15ze7n2">
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="Event_payment_decision_timeout" name="Decision timeout (15m)" attachedToRef="Event_1518y8h">
+      <bpmn:outgoing>Flow_payment_decision_timeout</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="Timer_payment_decision_timeout">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT15M</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:exclusiveGateway id="Gateway_1murdgd" name="Retry payment? (failures &#60; 3)" default="Flow_15ze7n2">
       <bpmn:incoming>Flow_0rxly45</bpmn:incoming>
       <bpmn:outgoing>Flow_0cgul02</bpmn:outgoing>
       <bpmn:outgoing>Flow_15ze7n2</bpmn:outgoing>
@@ -188,6 +195,7 @@
         <zeebe:taskDefinition type="cancel-order" retries="3" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_15ze7n2</bpmn:incoming>
+      <bpmn:incoming>Flow_payment_decision_timeout</bpmn:incoming>
       <bpmn:outgoing>Flow_0qivndt</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="Activity_0r8l2s4" name="Release stock reservation">
@@ -302,11 +310,16 @@
       <bpmn:incoming>Flow_0ewlt0d</bpmn:incoming>
       <bpmn:outgoing>Flow_08vw8vc</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:intermediateCatchEvent id="Event_0opm2xd" name="Settlement result received">
+    <bpmn:receiveTask id="Event_0opm2xd" name="Wait for settlement result" messageRef="Message_0s8r2m4">
       <bpmn:incoming>Flow_08vw8vc</bpmn:incoming>
       <bpmn:outgoing>Flow_1i82xnf</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1lpev57" messageRef="Message_0s8r2m4" />
-    </bpmn:intermediateCatchEvent>
+    </bpmn:receiveTask>
+    <bpmn:boundaryEvent id="Event_settlement_timeout" name="Settlement response timeout (2m)" attachedToRef="Event_0opm2xd">
+      <bpmn:outgoing>Flow_settlement_timeout</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="Timer_settlement_timeout">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT2M</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
     <bpmn:exclusiveGateway id="Gateway_1e7icdg" name="Settlement successful?" default="Flow_06md1wo">
       <bpmn:incoming>Flow_1i82xnf</bpmn:incoming>
       <bpmn:outgoing>Flow_0n2pw74</bpmn:outgoing>
@@ -317,20 +330,22 @@
         <zeebe:taskDefinition type="record-settlement-failure" retries="3" />
         <zeebe:ioMapping>
           <zeebe:output source="= settlementRetryCount + 1" target="settlementRetryCount" />
+          <zeebe:output source="= settlementFailureReason" target="settlementFailureReason" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_06md1wo</bpmn:incoming>
+      <bpmn:incoming>Flow_settlement_timeout</bpmn:incoming>
       <bpmn:outgoing>Flow_1hdfqsg</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:userTask id="Activity_09pfawo" name="Review failed settlement">
       <bpmn:extensionElements>
         <zeebe:userTask />
-        <zeebe:formDefinition externalReference="" />
+        <zeebe:formDefinition formId="form-review-failed-settlement" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1hdfqsg</bpmn:incoming>
       <bpmn:outgoing>Flow_1mrs81w</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_0hcxgmn" name="Retry settlement? (retryCount &#60; 3)" default="Flow_0jdal4y">
+    <bpmn:exclusiveGateway id="Gateway_0hcxgmn" name="Retry settlement? (failures &#60; 3)" default="Flow_0jdal4y">
       <bpmn:incoming>Flow_1mrs81w</bpmn:incoming>
       <bpmn:outgoing>Flow_1sb2d8m</bpmn:outgoing>
       <bpmn:outgoing>Flow_0jdal4y</bpmn:outgoing>
@@ -385,10 +400,11 @@
     <bpmn:sequenceFlow id="Flow_122zdr9" sourceRef="Activity_0r2yijp" targetRef="Gateway_0rw679i" />
     <bpmn:sequenceFlow id="Flow_1649jwv" sourceRef="Gateway_0rw679i" targetRef="Event_1518y8h" />
     <bpmn:sequenceFlow id="Flow_0rxly45" sourceRef="Event_1518y8h" targetRef="Gateway_1murdgd" />
-    <bpmn:sequenceFlow id="Flow_0cgul02" name="Yes (retryCount &#60; 3)" sourceRef="Gateway_1murdgd" targetRef="Gateway_0firheg">
+    <bpmn:sequenceFlow id="Flow_0cgul02" name="Yes (failures &#60; 3)" sourceRef="Gateway_1murdgd" targetRef="Gateway_0firheg">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= retryPayment = true and paymentRetryCount &lt; 3</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_15ze7n2" name="No / max retries" sourceRef="Gateway_1murdgd" targetRef="Activity_0ony9r5" />
+    <bpmn:sequenceFlow id="Flow_payment_decision_timeout" sourceRef="Event_payment_decision_timeout" targetRef="Activity_0ony9r5" />
     <bpmn:sequenceFlow id="Flow_0qivndt" sourceRef="Activity_0ony9r5" targetRef="Activity_0r8l2s4" />
     <bpmn:sequenceFlow id="Flow_1r8l2e4" sourceRef="Activity_0r8l2s4" targetRef="Event_18z0rku" />
     <bpmn:sequenceFlow id="Flow_0rg641h" sourceRef="Activity_0xl8z96" targetRef="Activity_06hysle" />
@@ -416,9 +432,10 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= settlementSuccessful = true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_06md1wo" name="No" sourceRef="Gateway_1e7icdg" targetRef="Activity_0yc85u4" />
+    <bpmn:sequenceFlow id="Flow_settlement_timeout" sourceRef="Event_settlement_timeout" targetRef="Activity_0yc85u4" />
     <bpmn:sequenceFlow id="Flow_1hdfqsg" sourceRef="Activity_0yc85u4" targetRef="Activity_09pfawo" />
     <bpmn:sequenceFlow id="Flow_1mrs81w" sourceRef="Activity_09pfawo" targetRef="Gateway_0hcxgmn" />
-    <bpmn:sequenceFlow id="Flow_1sb2d8m" name="Yes (retryCount &#60; 3)" sourceRef="Gateway_0hcxgmn" targetRef="Activity_1jjppln">
+    <bpmn:sequenceFlow id="Flow_1sb2d8m" name="Yes (failures &#60; 3)" sourceRef="Gateway_0hcxgmn" targetRef="Activity_1jjppln">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= retrySettlement = true and settlementRetryCount &lt; 3</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0jdal4y" name="No / max retries" sourceRef="Gateway_0hcxgmn" targetRef="Activity_0rsv3x7" />
@@ -478,7 +495,7 @@
       <bpmndi:BPMNShape id="Event_03qrl9a_di" bpmnElement="Event_0w68vfx">
         <dc:Bounds x="772" y="582" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="754" y="622" width="74" height="27" />
+          <dc:Bounds x="753" y="616" width="74" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1dznhq9_di" bpmnElement="Gateway_1dznhq9" isMarkerVisible="true">
@@ -506,10 +523,7 @@
         <dc:Bounds x="1175" y="625" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1518y8h_di" bpmnElement="Event_1518y8h">
-        <dc:Bounds x="722" y="702" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="697" y="752" width="85" height="27" />
-        </bpmndi:BPMNLabel>
+        <dc:Bounds x="690" y="680" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1murdgd_di" bpmnElement="Gateway_1murdgd" isMarkerVisible="true">
         <dc:Bounds x="615" y="695" width="50" height="50" />
@@ -587,10 +601,7 @@
         <dc:Bounds x="2225" y="578" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0lm0i7q_di" bpmnElement="Event_0opm2xd">
-        <dc:Bounds x="2329" y="585" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="2306" y="628" width="83" height="27" />
-        </bpmndi:BPMNLabel>
+        <dc:Bounds x="2297" y="563" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1e7icdg_di" bpmnElement="Gateway_1e7icdg" isMarkerVisible="true">
         <dc:Bounds x="2465" y="578" width="50" height="50" />
@@ -640,10 +651,22 @@
           <dc:Bounds x="1695" y="628" width="90" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_settlement_timeout_di" bpmnElement="Event_settlement_timeout">
+        <dc:Bounds x="2329" y="625" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2342" y="659" width="75" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_16ewxp0_di" bpmnElement="Event_16ewxp0">
         <dc:Bounds x="1409" y="412" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1386" y="456" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_payment_decision_timeout_di" bpmnElement="Event_payment_decision_timeout">
+        <dc:Bounds x="722" y="742" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="692" y="805" width="95" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0f9ee59_di" bpmnElement="Flow_0f9ee59">
@@ -713,10 +736,10 @@
         <di:waypoint x="1140" y="650" />
         <di:waypoint x="1140" y="668" />
         <di:waypoint x="740" y="668" />
-        <di:waypoint x="740" y="702" />
+        <di:waypoint x="740" y="680" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0rxly45_di" bpmnElement="Flow_0rxly45">
-        <di:waypoint x="722" y="720" />
+        <di:waypoint x="690" y="720" />
         <di:waypoint x="665" y="720" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0cgul02_di" bpmnElement="Flow_0cgul02">
@@ -734,6 +757,12 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="552" y="719" width="58" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_payment_decision_timeout_di" bpmnElement="Flow_payment_decision_timeout">
+        <di:waypoint x="740" y="778" />
+        <di:waypoint x="740" y="792" />
+        <di:waypoint x="495" y="792" />
+        <di:waypoint x="495" y="760" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0qivndt_di" bpmnElement="Flow_0qivndt">
         <di:waypoint x="445" y="720" />
@@ -818,7 +847,7 @@
         <di:waypoint x="1977" y="709" />
         <di:waypoint x="1865" y="709" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1905" y="688" width="15" height="14" />
+          <dc:Bounds x="1982" y="657" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ewlt0d_di" bpmnElement="Flow_0ewlt0d">
@@ -832,10 +861,10 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08vw8vc_di" bpmnElement="Flow_08vw8vc">
         <di:waypoint x="2275" y="603" />
-        <di:waypoint x="2329" y="603" />
+        <di:waypoint x="2297" y="603" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i82xnf_di" bpmnElement="Flow_1i82xnf">
-        <di:waypoint x="2365" y="603" />
+        <di:waypoint x="2397" y="603" />
         <di:waypoint x="2465" y="603" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0n2pw74_di" bpmnElement="Flow_0n2pw74">
@@ -854,6 +883,12 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2462" y="653" width="15" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_settlement_timeout_di" bpmnElement="Flow_settlement_timeout">
+        <di:waypoint x="2347" y="661" />
+        <di:waypoint x="2347" y="679" />
+        <di:waypoint x="2120" y="679" />
+        <di:waypoint x="2120" y="703" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1hdfqsg_di" bpmnElement="Flow_1hdfqsg">
         <di:waypoint x="2070" y="743" />
@@ -946,7 +981,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0o0tphl_di" bpmnElement="Flow_0o0tphl">
         <di:waypoint x="2347" y="110" />
-        <di:waypoint x="2347" y="585" />
+        <di:waypoint x="2347" y="563" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2355" y="126" width="83" height="14" />
         </bpmndi:BPMNLabel>
@@ -972,19 +1007,12 @@
           <dc:Bounds x="1010" y="1040" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1wsbmdz_di" bpmnElement="Flow_1wsbmdz">
-        <di:waypoint x="740" y="1080" />
-        <di:waypoint x="740" y="738" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="748" y="1040" width="78" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0sdz6h2_di" bpmnElement="Flow_0sdz6h2">
         <di:waypoint x="1290" y="733" />
         <di:waypoint x="1320" y="733" />
         <di:waypoint x="1320" y="1080" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1328" y="1040" width="85" height="27" />
+          <dc:Bounds x="1317" y="1027" width="85" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1975j1q_di" bpmnElement="Flow_1975j1q">

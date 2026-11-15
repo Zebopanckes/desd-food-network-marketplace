@@ -1,6 +1,6 @@
 {
   "executionPlatform": "Camunda Cloud",
-  "executionPlatformVersion": "8.10.0",
+  "executionPlatformVersion": "8.9.0",
   "exporter": {
     "name": "Camunda Web Modeler",
     "version": "64767e4"
@@ -9,11 +9,22 @@
   "id": "form-review-and-confirm-order",
   "components": [
     {
-      "text": "### Review and Confirm Order\nReview the producer breakdown and system-calculated delivery or collection arrangements before confirming your order.",
+      "text": "### Review and Confirm Order\nReview the demo producer breakdown and delivery arrangements. Confirm to proceed; otherwise select amend or cancel. Start variable customerConfirmed pre-fills the checkbox but you must still submit this form.",
       "type": "text",
       "id": "Field_Header_Review",
       "layout": {
         "row": "Row_0",
+        "columns": null
+      }
+    },
+    {
+      "label": "Producer breakdown (demo)",
+      "type": "textfield",
+      "id": "Field_ProducerSummary",
+      "key": "producerSummary",
+      "readonly": true,
+      "layout": {
+        "row": "Row_Producers",
         "columns": null
       }
     },
@@ -46,7 +57,7 @@
       "id": "Field_CustomerConfirmed",
       "key": "customerConfirmed",
       "description": "Checked = true (routes 'Customer confirmed?' gateway to Order creation and retry)",
-      "defaultValue": true,
+      "defaultValue": false,
       "layout": {
         "row": "Row_3",
         "columns": null
@@ -57,13 +68,15 @@
       "type": "select",
       "id": "Field_CustomerDecision",
       "key": "customerDecision",
-      "description": "Set to 'amend' to loop back to stock check, or leave empty / 'cancel' when unchecking confirm",
-      "defaultValue": "",
+      "description": "Only used when confirm is unchecked. Amend returns to the stock check, then to this review form.",
+      "defaultValue": "cancel",
+      "conditional": {
+        "hide": "= customerConfirmed = true"
+      },
+      "validate": {
+        "required": true
+      },
       "values": [
-        {
-          "label": "Proceed with confirmed order (leave empty)",
-          "value": ""
-        },
         {
           "label": "Amend basket (return to stock check)",
           "value": "amend"
@@ -75,6 +88,23 @@
       ],
       "layout": {
         "row": "Row_4",
+        "columns": null
+      }
+    },
+    {
+      "label": "Basket amendment notes (demo)",
+      "type": "textfield",
+      "id": "Field_ReviewAmendment",
+      "key": "amendedQuantities",
+      "description": "Record the requested change. The demo uses fixed producer totals; it does not price or persist a real basket.",
+      "conditional": {
+        "hide": "= customerConfirmed = true or customerDecision != \"amend\""
+      },
+      "validate": {
+        "required": true
+      },
+      "layout": {
+        "row": "Row_5",
         "columns": null
       }
     }

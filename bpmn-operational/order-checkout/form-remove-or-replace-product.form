@@ -1,6 +1,6 @@
 {
   "executionPlatform": "Camunda Cloud",
-  "executionPlatformVersion": "8.10.0",
+  "executionPlatformVersion": "8.9.0",
   "exporter": {
     "name": "Camunda Web Modeler",
     "version": "64767e4"
@@ -58,20 +58,14 @@
       "id": "Field_ReplacementProductId",
       "key": "replacementProductId",
       "description": "Leave blank if removing the product",
+      "conditional": {
+        "hide": "= replacementChoice != \"replace\""
+      },
+      "validate": {
+        "required": true
+      },
       "layout": {
         "row": "Row_3",
-        "columns": null
-      }
-    },
-    {
-      "label": "Clear unavailable product flag after update",
-      "type": "checkbox",
-      "id": "Field_ClearUnavailableFlag",
-      "key": "unavailableProduct",
-      "description": "Uncheck (false) once the unavailable product has been removed or replaced",
-      "defaultValue": false,
-      "layout": {
-        "row": "Row_4",
         "columns": null
       }
     }

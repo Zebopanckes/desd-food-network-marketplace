@@ -34,7 +34,8 @@ Roles are flexible and reviewed each sprint.
 
 ## How to run
 
-Setup instructions will be added in camunda/README.md once the Camunda environment is confirmed.
+See the [Camunda model and form instructions](camunda/README.md) for importing
+the checkout/payment BPMNs and forms into Camunda.
 
 ## Commit convention
 

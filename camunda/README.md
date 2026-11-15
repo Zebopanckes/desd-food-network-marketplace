@@ -1,7 +1,8 @@
 # Camunda automation
 
-Executable BPMN processes, Camunda Forms and run instructions.
+## BPMN models and forms
 
-Folders: processes/ (BPMN), forms/ (Camunda Forms), decisions/ (DMN, if used).
+- [Order and checkout](../bpmn-operational/order-checkout/): BPMN and three forms.
+- [Payment and settlement](../bpmn-operational/payment-processing/): BPMN, image and two forms.
 
-Deployment steps will be documented here.
+

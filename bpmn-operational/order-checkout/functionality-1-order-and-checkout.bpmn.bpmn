@@ -75,6 +75,7 @@
       <bpmn:outgoing>Flow_0t5c9s3</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:serviceTask id="Activity_0c7s2a4" name="Check stock availability">
+      <bpmn:documentation>Demo worker reads stockScenario (in_stock or out_of_stock). Completing the shortage forms marks basketAmended, allowing the next simulated check to succeed. Only the worker produces sufficientStock.</bpmn:documentation>
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="check-stock-availability" retries="3" />
       </bpmn:extensionElements>
@@ -101,6 +102,11 @@
         <bpmn:extensionElements>
           <zeebe:userTask />
           <zeebe:formDefinition formId="form-inform-and-amend-basket" />
+          <zeebe:ioMapping>
+            <zeebe:output source="= amendedQuantities" target="amendedQuantities" />
+            <zeebe:output source="= unavailableProduct" target="unavailableProduct" />
+            <zeebe:output source="= unavailableProduct != true" target="basketAmended" />
+          </zeebe:ioMapping>
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_0h1s4i8</bpmn:incoming>
         <bpmn:outgoing>Flow_1h4i9g2</bpmn:outgoing>
@@ -114,6 +120,12 @@
         <bpmn:extensionElements>
           <zeebe:userTask />
           <zeebe:formDefinition formId="form-remove-or-replace-product" />
+          <zeebe:ioMapping>
+            <zeebe:output source="= replacementChoice" target="replacementChoice" />
+            <zeebe:output source="= replacementProductId" target="replacementProductId" />
+            <zeebe:output source="= false" target="unavailableProduct" />
+            <zeebe:output source="= true" target="basketAmended" />
+          </zeebe:ioMapping>
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_1h6u3r9</bpmn:incoming>
         <bpmn:outgoing>Flow_0h3r7m1</bpmn:outgoing>
@@ -306,7 +318,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= customerConfirmed = true</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1c4a8b2" name="Amend basket" sourceRef="Gateway_1c6f3m8" targetRef="Gateway_1m3s8c4">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= customerDecision = "amend"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= customerConfirmed != true and customerDecision = "amend"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0c9x2e4" name="Declined / cancel" sourceRef="Gateway_1c6f3m8" targetRef="Event_1c9x4l2" />
     <bpmn:sequenceFlow id="Flow_0e9b2f4" sourceRef="Event_0e4b8s1" targetRef="Activity_0r8l2s4" />

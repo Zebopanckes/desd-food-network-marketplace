@@ -1,6 +1,6 @@
 {
   "executionPlatform": "Camunda Cloud",
-  "executionPlatformVersion": "8.10.0",
+  "executionPlatformVersion": "8.9.0",
   "exporter": {
     "name": "Camunda Web Modeler",
     "version": "64767e4"
@@ -33,7 +33,7 @@
       "type": "textfield",
       "id": "Field_AmendedQuantities",
       "key": "amendedQuantities",
-      "description": "Enter updated basket quantities (e.g., apples: 2, sourdough: 1)",
+      "description": "Demo amendment notes (e.g., apples: 2, sourdough: 1). Submitting this form resolves the simulated shortage unless an unavailable product still needs removal/replacement. This does not update a real inventory.",
       "validate": {
         "required": true
       },

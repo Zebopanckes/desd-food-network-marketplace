@@ -1,0 +1,43 @@
+{
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "schemaVersion": 16,
+  "id": "form-retry-or-cancel-payment",
+  "type": "default",
+  "components": [
+    {
+      "id": "Field_PaymentHeader",
+      "type": "text",
+      "text": "### Payment Issue\nReview the simulated payment failure. Retry or cancel the order and release its stock reservation. No card or bank details are needed."
+    },
+    {
+      "id": "Field_PaymentOrder",
+      "type": "textfield",
+      "key": "orderId",
+      "label": "Order ID",
+      "readonly": true
+    },
+    {
+      "id": "Field_PaymentFailure",
+      "type": "textfield",
+      "key": "paymentFailureReason",
+      "label": "Failure details",
+      "readonly": true
+    },
+    {
+      "id": "Field_PaymentAttempts",
+      "type": "number",
+      "key": "paymentRetryCount",
+      "label": "Failed attempts (maximum 3)",
+      "readonly": true
+    },
+    {
+      "id": "Field_RetryPayment",
+      "type": "checkbox",
+      "key": "retryPayment",
+      "label": "Retry payment",
+      "description": "Unchecked cancels the order. After 3 failed attempts the order is cancelled even if checked. No decision within 15 minutes also cancels.",
+      "defaultValue": false
+    }
+  ]
+}

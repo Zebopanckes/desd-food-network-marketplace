@@ -1,6 +1,6 @@
 {
   "executionPlatform": "Camunda Cloud",
-  "executionPlatformVersion": "8.10.0",
+  "executionPlatformVersion": "8.9.0",
   "exporter": {
     "name": "Camunda Web Modeler",
     "version": "64767e4"
@@ -29,12 +29,34 @@
       }
     },
     {
+      "label": "Failure details",
+      "type": "textfield",
+      "id": "Field_SettlementFailure",
+      "key": "settlementFailureReason",
+      "readonly": true,
+      "layout": {
+        "row": "Row_Details",
+        "columns": null
+      }
+    },
+    {
+      "label": "Failed attempts (maximum 3)",
+      "type": "number",
+      "id": "Field_SettlementRetryCount",
+      "key": "settlementRetryCount",
+      "readonly": true,
+      "layout": {
+        "row": "Row_Attempts",
+        "columns": null
+      }
+    },
+    {
       "label": "Retry failed settlement batch",
       "type": "checkbox",
       "id": "Field_RetrySettlement",
       "key": "retrySettlement",
-      "description": "Checked = true routes 'Retry settlement?' gateway to 'Retry failed settlements' (while settlementRetryCount < 3)",
-      "defaultValue": true,
+      "description": "Check to retry; leave unchecked for manual follow-up. After 3 failed attempts this always routes to manual follow-up, even if checked.",
+      "defaultValue": false,
       "layout": {
         "row": "Row_2",
         "columns": null
