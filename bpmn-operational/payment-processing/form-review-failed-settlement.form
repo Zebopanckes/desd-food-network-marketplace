@@ -51,12 +51,27 @@
       }
     },
     {
+      "text": "**Maximum settlement attempts (3) reached.** Submitting this form will flag the batch for manual follow-up.",
+      "type": "text",
+      "id": "Field_MaxSettlementRetriesNotice",
+      "conditional": {
+        "hide": "= settlementRetryCount = null or settlementRetryCount < 3"
+      },
+      "layout": {
+        "row": "Row_MaxNotice",
+        "columns": null
+      }
+    },
+    {
       "label": "Retry failed settlement batch",
       "type": "checkbox",
       "id": "Field_RetrySettlement",
       "key": "retrySettlement",
-      "description": "Check to retry; leave unchecked for manual follow-up. After 3 failed attempts this always routes to manual follow-up, even if checked.",
+      "description": "Check to retry; leave unchecked for manual follow-up.",
       "defaultValue": false,
+      "conditional": {
+        "hide": "= settlementRetryCount != null and settlementRetryCount >= 3"
+      },
       "layout": {
         "row": "Row_2",
         "columns": null

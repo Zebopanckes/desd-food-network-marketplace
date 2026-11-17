@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="64767e4" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.9.0">
   <bpmn:error id="Error_0p8n3f2" name="ProducerNotificationFailed" errorCode="ERR_PRODUCER_NOTIFY" />
-  <bpmn:message id="Message_1p7r3m9" name="Payment requested">
-    <bpmn:extensionElements>
-      <zeebe:subscription correlationKey="=orderId" />
-    </bpmn:extensionElements>
-  </bpmn:message>
+  <bpmn:message id="Message_1p7r3m9" name="Payment requested" />
   <bpmn:message id="Message_0p4r9s2" name="Payment result">
     <bpmn:extensionElements>
       <zeebe:subscription correlationKey="=paymentRequestId" />
@@ -32,6 +28,7 @@
     <bpmn:messageFlow id="Flow_1mtowbh" name="Settlement retry request" sourceRef="Activity_1jjppln" targetRef="Participant_02w12da" />
     <bpmn:messageFlow id="Flow_1sibwfg" name="Payment declined notice" sourceRef="Activity_1fcdhs8" targetRef="Participant_052xb10" />
     <bpmn:messageFlow id="Flow_0sdz6h2" name="Payment unavailable notice" sourceRef="Activity_0r2yijp" targetRef="Participant_052xb10" />
+    <bpmn:messageFlow id="Flow_0m8r3c5" name="Retry or cancel decision" sourceRef="Participant_052xb10" targetRef="Event_1518y8h" />
     <bpmn:messageFlow id="Flow_1975j1q" name="Retried producer order" sourceRef="Activity_0sd3hei" targetRef="Participant_1wfa956" />
     <bpmn:messageFlow id="Flow_0m3d8s2" name="Deduct stock" sourceRef="Activity_06hysle" targetRef="Participant_1s6t3k8" />
     <bpmn:messageFlow id="Flow_0m4r8l2" name="Release stock" sourceRef="Activity_0r8l2s4" targetRef="Participant_1s6t3k8" />
@@ -48,6 +45,8 @@
         <bpmn:flowNodeRef>Event_16ewxp0</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_08poptu</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0sd3hei</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0r9n4f2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1f6n2m8</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0lhvvwy" name="Payments and Settlement">
         <bpmn:flowNodeRef>Event_0hq7ehn</bpmn:flowNodeRef>
@@ -95,10 +94,22 @@
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="Event_0hq7ehn" name="Payment requested">
-      <bpmn:documentation>Receives the checkout Message Send connector payload, including orderId, paymentAmount, basket/customer identifiers and producer sub-orders. Example data is only for starting this process independently in Play/Test.</bpmn:documentation>
+      <bpmn:documentation>Receives the checkout Message Send connector payload, including orderId, paymentAmount, basket/customer identifiers and producer sub-orders. Starting independently with empty variables applies demo defaults.</bpmn:documentation>
       <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="= if orderId != null and string(orderId) != &quot;&quot; then string(orderId) else &quot;ORD-1001&quot;" target="orderId" />
+          <zeebe:output source="= if basketId != null and string(basketId) != &quot;&quot; then string(basketId) else &quot;BASKET-1001&quot;" target="basketId" />
+          <zeebe:output source="= if customerId != null and string(customerId) != &quot;&quot; then string(customerId) else &quot;CUST-001&quot;" target="customerId" />
+          <zeebe:output source="= if productId != null and string(productId) != &quot;&quot; then string(productId) else &quot;apple-box&quot;" target="productId" />
+          <zeebe:output source="= if requestedQuantity instance of number then requestedQuantity else if requestedQuantity != null and number(string(requestedQuantity)) != null then number(string(requestedQuantity)) else 5" target="requestedQuantity" />
+          <zeebe:output source="= if paymentAmount instance of number and paymentAmount &gt; 0 then paymentAmount else if paymentAmount != null and number(string(paymentAmount)) != null and number(string(paymentAmount)) &gt; 0 then number(string(paymentAmount)) else 18.5" target="paymentAmount" />
+          <zeebe:output source="= if orderProducers != null and count(orderProducers) &gt; 0 then orderProducers else [&quot;hillside-farm&quot;, &quot;bristol-bakery&quot;]" target="orderProducers" />
+          <zeebe:output source="= if producerSubOrders != null then producerSubOrders else [{ producerId: &quot;hillside-farm&quot;, orderId: &quot;ORD-1001&quot;, status: &quot;CREATED&quot; }, { producerId: &quot;bristol-bakery&quot;, orderId: &quot;ORD-1001&quot;, status: &quot;CREATED&quot; }]" target="producerSubOrders" />
+          <zeebe:output source="= if producerSummary != null then producerSummary else &quot;Hillside Farm: apple-box (12.50 GBP); Bristol Bakery: bread-loaf (6.00 GBP)&quot;" target="producerSummary" />
+          <zeebe:output source="= if deliveryArrangementsSummary != null then deliveryArrangementsSummary else &quot;Hillside Farm: home delivery Thursday; Bristol Bakery: collection Friday&quot;" target="deliveryArrangementsSummary" />
+        </zeebe:ioMapping>
         <zeebe:properties>
-          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;orderId&quot;: &quot;ORD-1001&quot;, &quot;basketId&quot;: &quot;BASKET-1001&quot;, &quot;customerId&quot;: &quot;CUST-001&quot;, &quot;paymentAmount&quot;: 18.5 }" />
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;orderId&quot;: &quot;ORD-1001&quot;, &quot;basketId&quot;: &quot;BASKET-1001&quot;, &quot;customerId&quot;: &quot;CUST-001&quot;, &quot;paymentAmount&quot;: 18.5, &quot;orderProducers&quot;: [&quot;hillside-farm&quot;, &quot;bristol-bakery&quot;] }" />
         </zeebe:properties>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0f9ee59</bpmn:outgoing>
@@ -197,6 +208,10 @@
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="form-retry-or-cancel-payment" />
+        <zeebe:ioMapping>
+          <zeebe:input source="= false" target="retryPayment" />
+          <zeebe:output source="= retryPayment = true and paymentRetryCount &lt; 3" target="retryPayment" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1649jwv</bpmn:incoming>
       <bpmn:outgoing>Flow_0rxly45</bpmn:outgoing>
@@ -254,6 +269,9 @@
     <bpmn:serviceTask id="Activity_1hftzgu" name="Notify producers">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="notify-producers" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:output source="= &quot;SENT&quot;" target="producerNotificationStatus" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1di5q7x</bpmn:incoming>
       <bpmn:outgoing>Flow_09sxvfc</bpmn:outgoing>
@@ -272,32 +290,61 @@
     <bpmn:serviceTask id="Activity_0sd3hei" name="Retry producer notification">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="retry-producer-notification" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:output source="= &quot;SENT_ON_RETRY&quot;" target="producerNotificationStatus" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_17gvn4p</bpmn:incoming>
       <bpmn:outgoing>Flow_05e9yju</bpmn:outgoing>
     </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="Event_0r9n4f2" name="Notification retry failed" attachedToRef="Activity_0sd3hei">
+      <bpmn:outgoing>Flow_0r7n2m5</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0r9n4f2" errorRef="Error_0p8n3f2" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Activity_1f6n2m8" name="Flag notification for manual follow-up">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="flag-producer-notification-followup" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:output source="= &quot;MANUAL_FOLLOWUP_REQUIRED&quot;" target="producerNotificationStatus" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0r7n2m5</bpmn:incoming>
+      <bpmn:outgoing>Flow_1f8n4g2</bpmn:outgoing>
+    </bpmn:serviceTask>
     <bpmn:exclusiveGateway id="Gateway_1gcqj3j">
       <bpmn:incoming>Flow_09sxvfc</bpmn:incoming>
       <bpmn:incoming>Flow_05e9yju</bpmn:incoming>
+      <bpmn:incoming>Flow_1f8n4g2</bpmn:incoming>
       <bpmn:outgoing>Flow_0d8dh2g</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Activity_1y8jt4y" name="Calculate 5% commission">
+    <bpmn:scriptTask id="Activity_1y8jt4y" name="Calculate 5% commission">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="calculate-commission" retries="3" />
+        <zeebe:script expression="= round half up((if paymentAmount instance of number then paymentAmount else 18.5) * 0.05, 2)" resultVariable="commissionAmount" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0d8dh2g</bpmn:incoming>
       <bpmn:outgoing>Flow_0hsy971</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_0a8ae8l" name="Calculate producer allocation">
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="Activity_0a8ae8l" name="Calculate producer allocation">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="calculate-producer-allocation" retries="3" />
+        <zeebe:script expression="= { netTotal: round half up((if paymentAmount instance of number then paymentAmount else 18.5) - commissionAmount, 2), producerCount: if orderProducers != null and count(orderProducers) &gt; 0 then count(orderProducers) else 1 }" resultVariable="allocationSummary" />
+        <zeebe:ioMapping>
+          <zeebe:output source="= allocationSummary.netTotal" target="producerNetTotal" />
+          <zeebe:output source="= if orderProducers != null and count(orderProducers) &gt; 0 then for i in 1..count(orderProducers) return { producerId: orderProducers[i], netShare: if i &lt; count(orderProducers) then round half up(allocationSummary.netTotal / allocationSummary.producerCount, 2) else round half up(allocationSummary.netTotal - round half up(allocationSummary.netTotal / allocationSummary.producerCount, 2) * (allocationSummary.producerCount - 1), 2) } else [{ producerId: &quot;default-producer&quot;, netShare: allocationSummary.netTotal }]" target="producerAllocations" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0hsy971</bpmn:incoming>
       <bpmn:outgoing>Flow_0ao56xm</bpmn:outgoing>
-    </bpmn:serviceTask>
+    </bpmn:scriptTask>
     <bpmn:serviceTask id="Activity_0thxxf3" name="Record pending settlements">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="record-pending-settlements" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:output source="= true" target="pendingSettlementRecorded" />
+          <zeebe:output source="= &quot;PENDING_WEEKLY_SETTLEMENT&quot;" target="settlementStatus" />
+        </zeebe:ioMapping>
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;pendingSettlementRecorded&quot;: true }" />
+        </zeebe:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0ao56xm</bpmn:incoming>
       <bpmn:outgoing>Flow_0tgs6x2</bpmn:outgoing>
@@ -308,6 +355,11 @@
     <bpmn:serviceTask id="Activity_076120z" name="Retrieve pending settlements">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="retrieve-pending-settlements" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:output source="= 0" target="settlementRetryCount" />
+          <zeebe:output source="= if pendingSettlementsFound = false or string(pendingSettlementsFound) = &quot;false&quot; then false else true" target="pendingSettlementsFound" />
+          <zeebe:output source="= if settlementBatchId != null and string(settlementBatchId) != &quot;&quot; then string(settlementBatchId) else &quot;SETTLEMENT-2026-W47&quot;" target="settlementBatchId" />
+        </zeebe:ioMapping>
         <zeebe:properties>
           <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;pendingSettlementsFound&quot;: true, &quot;settlementBatchId&quot;: &quot;SETTLEMENT-2026-W47&quot; }" />
         </zeebe:properties>
@@ -385,6 +437,10 @@
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="form-review-failed-settlement" />
+        <zeebe:ioMapping>
+          <zeebe:input source="= false" target="retrySettlement" />
+          <zeebe:output source="= retrySettlement = true and settlementRetryCount &lt; 3" target="retrySettlement" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1hdfqsg</bpmn:incoming>
       <bpmn:outgoing>Flow_1mrs81w</bpmn:outgoing>
@@ -464,6 +520,8 @@
     <bpmn:sequenceFlow id="Flow_0ffhmtr" sourceRef="Event_16ewxp0" targetRef="Activity_08poptu" />
     <bpmn:sequenceFlow id="Flow_17gvn4p" sourceRef="Activity_08poptu" targetRef="Activity_0sd3hei" />
     <bpmn:sequenceFlow id="Flow_05e9yju" sourceRef="Activity_0sd3hei" targetRef="Gateway_1gcqj3j" />
+    <bpmn:sequenceFlow id="Flow_0r7n2m5" sourceRef="Event_0r9n4f2" targetRef="Activity_1f6n2m8" />
+    <bpmn:sequenceFlow id="Flow_1f8n4g2" sourceRef="Activity_1f6n2m8" targetRef="Gateway_1gcqj3j" />
     <bpmn:sequenceFlow id="Flow_0d8dh2g" sourceRef="Gateway_1gcqj3j" targetRef="Activity_1y8jt4y" />
     <bpmn:sequenceFlow id="Flow_0hsy971" sourceRef="Activity_1y8jt4y" targetRef="Activity_0a8ae8l" />
     <bpmn:sequenceFlow id="Flow_0ao56xm" sourceRef="Activity_0a8ae8l" targetRef="Activity_0thxxf3" />
@@ -611,6 +669,9 @@
       <bpmndi:BPMNShape id="Activity_09m87e9_di" bpmnElement="Activity_0sd3hei">
         <dc:Bounds x="1720" y="350" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1f6n2m8_di" bpmnElement="Activity_1f6n2m8">
+        <dc:Bounds x="1960" y="350" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1gcqj3j_di" bpmnElement="Gateway_1gcqj3j" isMarkerVisible="true">
         <dc:Bounds x="1275" y="565" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -713,10 +774,16 @@
           <dc:Bounds x="1386" y="456" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0r9n4f2_di" bpmnElement="Event_0r9n4f2">
+        <dc:Bounds x="1784" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1786" y="456" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_payment_decision_timeout_di" bpmnElement="Event_payment_decision_timeout">
         <dc:Bounds x="722" y="742" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="692" y="805" width="95" height="27" />
+          <dc:Bounds x="783" y="765" width="95" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0f9ee59_di" bpmnElement="Flow_0f9ee59">
@@ -805,7 +872,7 @@
         <di:waypoint x="615" y="720" />
         <di:waypoint x="545" y="720" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="552" y="719" width="58" height="27" />
+          <dc:Bounds x="551" y="688" width="58" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_payment_decision_timeout_di" bpmnElement="Flow_payment_decision_timeout">
@@ -857,8 +924,20 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_05e9yju_di" bpmnElement="Flow_05e9yju">
         <di:waypoint x="1740" y="430" />
-        <di:waypoint x="1740" y="530" />
-        <di:waypoint x="1300" y="530" />
+        <di:waypoint x="1740" y="512" />
+        <di:waypoint x="1300" y="512" />
+        <di:waypoint x="1300" y="565" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r7n2m5_di" bpmnElement="Flow_0r7n2m5">
+        <di:waypoint x="1820" y="430" />
+        <di:waypoint x="1890" y="430" />
+        <di:waypoint x="1890" y="390" />
+        <di:waypoint x="1960" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1f8n4g2_di" bpmnElement="Flow_1f8n4g2">
+        <di:waypoint x="2010" y="430" />
+        <di:waypoint x="2010" y="512" />
+        <di:waypoint x="1300" y="512" />
         <di:waypoint x="1300" y="565" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0d8dh2g_di" bpmnElement="Flow_0d8dh2g">
@@ -1063,6 +1142,13 @@
         <di:waypoint x="1320" y="1080" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1317" y="1027" width="85" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0m8r3c5_di" bpmnElement="Flow_0m8r3c5">
+        <di:waypoint x="775" y="1080" />
+        <di:waypoint x="775" y="760" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="783" y="1040" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1975j1q_di" bpmnElement="Flow_1975j1q">

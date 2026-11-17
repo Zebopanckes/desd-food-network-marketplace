@@ -1,6 +1,10 @@
 {
   "executionPlatform": "Camunda Cloud",
   "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Web Modeler",
+    "version": "64767e4"
+  },
   "schemaVersion": 16,
   "id": "form-retry-or-cancel-payment",
   "type": "default",
@@ -8,36 +12,82 @@
     {
       "id": "Field_PaymentHeader",
       "type": "text",
-      "text": "### Payment Issue\nReview the simulated payment failure. Retry or cancel the order and release its stock reservation. No card or bank details are needed."
+      "text": "### Payment Issue\nReview the simulated payment failure. Retry or cancel the order and release its stock reservation. No card or bank details are needed.",
+      "layout": {
+        "row": "Row_0",
+        "columns": null
+      }
     },
     {
       "id": "Field_PaymentOrder",
       "type": "textfield",
       "key": "orderId",
       "label": "Order ID",
-      "readonly": true
+      "readonly": true,
+      "layout": {
+        "row": "Row_1",
+        "columns": null
+      }
+    },
+    {
+      "id": "Field_PaymentAmount",
+      "type": "number",
+      "key": "paymentAmount",
+      "label": "Payment amount (GBP)",
+      "readonly": true,
+      "layout": {
+        "row": "Row_1",
+        "columns": null
+      }
     },
     {
       "id": "Field_PaymentFailure",
       "type": "textfield",
       "key": "paymentFailureReason",
       "label": "Failure details",
-      "readonly": true
+      "readonly": true,
+      "layout": {
+        "row": "Row_2",
+        "columns": null
+      }
     },
     {
       "id": "Field_PaymentAttempts",
       "type": "number",
       "key": "paymentRetryCount",
       "label": "Failed attempts (maximum 3)",
-      "readonly": true
+      "readonly": true,
+      "layout": {
+        "row": "Row_3",
+        "columns": null
+      }
+    },
+    {
+      "id": "Field_MaxPaymentRetriesNotice",
+      "type": "text",
+      "text": "**Maximum payment attempts (3) reached.** Submitting this form will cancel the order and release the reserved stock.",
+      "conditional": {
+        "hide": "= paymentRetryCount = null or paymentRetryCount < 3"
+      },
+      "layout": {
+        "row": "Row_4",
+        "columns": null
+      }
     },
     {
       "id": "Field_RetryPayment",
       "type": "checkbox",
       "key": "retryPayment",
       "label": "Retry payment",
-      "description": "Unchecked cancels the order. After 3 failed attempts the order is cancelled even if checked. No decision within 15 minutes also cancels.",
-      "defaultValue": false
+      "description": "Unchecked cancels the order. No decision within 15 minutes also cancels.",
+      "defaultValue": false,
+      "conditional": {
+        "hide": "= paymentRetryCount != null and paymentRetryCount >= 3"
+      },
+      "layout": {
+        "row": "Row_5",
+        "columns": null
+      }
     }
   ]
 }
