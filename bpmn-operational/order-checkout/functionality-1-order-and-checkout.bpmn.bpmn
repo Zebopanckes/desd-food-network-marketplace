@@ -23,13 +23,11 @@
     <bpmn:messageFlow id="Flow_1m2s6d4" name="Order summary" sourceRef="Activity_0r4c9o2" targetRef="Participant_0c4u7s1" />
     <bpmn:messageFlow id="Flow_0m7f3k9" name="Order decision" sourceRef="Participant_0c4u7s1" targetRef="Activity_0r4c9o2" />
     <bpmn:messageFlow id="Flow_1m8e4x2" name="Order failure notice" sourceRef="Activity_1n7c3f5" targetRef="Participant_0c4u7s1" />
-    <bpmn:messageFlow id="Flow_0m5q9z1" name="Check stock query" sourceRef="Activity_0c7s2a4" targetRef="Participant_1s6t3k8" />
-    <bpmn:messageFlow id="Flow_1m3v7b8" name="Stock status" sourceRef="Participant_1s6t3k8" targetRef="Activity_0c7s2a4" />
     <bpmn:messageFlow id="Flow_0m6r2s9" name="Reserve stock" sourceRef="Activity_1r4s8t2" targetRef="Participant_1s6t3k8" />
     <bpmn:messageFlow id="Flow_0m4r8l2" name="Release stock" sourceRef="Activity_0r8l2s4" targetRef="Participant_1s6t3k8" />
     <bpmn:messageFlow id="Flow_1m9p4s2" name="Payment requested" sourceRef="Event_0p2r8q5" targetRef="Participant_0p5s8m2" />
     <bpmn:textAnnotation id="TextAnnotation_0a7s3k1">
-      <bpmn:text>Stock fed by Listing and Inventory BPMN (Ashley)</bpmn:text>
+      <bpmn:text>Demo stock check uses DMN; stock reservation uses Inventory API</bpmn:text>
     </bpmn:textAnnotation>
     <bpmn:association id="Association_1x8v2n4" associationDirection="None" sourceRef="Activity_0c7s2a4" targetRef="TextAnnotation_0a7s3k1" />
     <bpmn:textAnnotation id="TextAnnotation_1p9m4w2">
@@ -65,6 +63,11 @@
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="Event_0s9t3c1" name="Customer order placed">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;basketId&quot;: &quot;BASKET-1001&quot;, &quot;customerId&quot;: &quot;CUST-001&quot;, &quot;productId&quot;: &quot;apple-box&quot;, &quot;requestedQuantity&quot;: 5 }" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_1a2b4c6</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0m8s2p1" messageRef="Message_0a4b8c2" />
     </bpmn:startEvent>
@@ -74,14 +77,14 @@
       <bpmn:incoming>Flow_1c4a8b2</bpmn:incoming>
       <bpmn:outgoing>Flow_0t5c9s3</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="Activity_0c7s2a4" name="Check stock availability">
-      <bpmn:documentation>Demo worker reads stockScenario (in_stock or out_of_stock). Completing the shortage forms marks basketAmended, allowing the next simulated check to succeed. Only the worker produces sufficientStock.</bpmn:documentation>
+    <bpmn:businessRuleTask id="Activity_0c7s2a4" name="Check stock availability">
+      <bpmn:documentation>Evaluates the check-stock-availability DMN (decision-check-stock-availability.dmn) with productId and requestedQuantity. The boolean result is stored in sufficientStock. The shortage forms update productId/requestedQuantity so the re-check can pass.</bpmn:documentation>
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="check-stock-availability" retries="3" />
+        <zeebe:calledDecision decisionId="check-stock-availability" resultVariable="sufficientStock" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0t5c9s3</bpmn:incoming>
       <bpmn:outgoing>Flow_1s6c2g8</bpmn:outgoing>
-    </bpmn:serviceTask>
+    </bpmn:businessRuleTask>
     <bpmn:exclusiveGateway id="Gateway_0s4f9k2" name="Sufficient stock?" default="Flow_0s2n7p4">
       <bpmn:incoming>Flow_1s6c2g8</bpmn:incoming>
       <bpmn:outgoing>Flow_0s2n7p4</bpmn:outgoing>
@@ -104,7 +107,8 @@
           <zeebe:formDefinition formId="form-inform-and-amend-basket" />
           <zeebe:ioMapping>
             <zeebe:output source="= amendedQuantities" target="amendedQuantities" />
-            <zeebe:output source="= unavailableProduct" target="unavailableProduct" />
+            <zeebe:output source="= requestedQuantity" target="requestedQuantity" />
+            <zeebe:output source="= unavailableProduct = true" target="unavailableProduct" />
             <zeebe:output source="= unavailableProduct != true" target="basketAmended" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
@@ -123,6 +127,8 @@
           <zeebe:ioMapping>
             <zeebe:output source="= replacementChoice" target="replacementChoice" />
             <zeebe:output source="= replacementProductId" target="replacementProductId" />
+            <zeebe:output source="= if replacementChoice = &quot;replace&quot; and replacementProductId != null then replacementProductId else productId" target="productId" />
+            <zeebe:output source="= if replacementChoice = &quot;remove&quot; then 0 else requestedQuantity" target="requestedQuantity" />
             <zeebe:output source="= false" target="unavailableProduct" />
             <zeebe:output source="= true" target="basketAmended" />
           </zeebe:ioMapping>
@@ -150,6 +156,9 @@
     <bpmn:serviceTask id="Activity_1i4p7o3" name="Identify producers in the order">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="identify-producers" retries="3" />
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;orderProducers&quot;: [&quot;hillside-farm&quot;, &quot;bristol-bakery&quot;], &quot;producerSummary&quot;: &quot;Hillside Farm: apple-box (12.50 GBP); Bristol Bakery: bread-loaf (6.00 GBP)&quot; }" />
+        </zeebe:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1s9y4m6</bpmn:incoming>
       <bpmn:outgoing>Flow_0i7p2d4</bpmn:outgoing>
@@ -157,6 +166,9 @@
     <bpmn:serviceTask id="Activity_0d9d2a6" name="Determine delivery or collection arrangements">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="determine-delivery-arrangements" retries="3" />
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;deliveryArrangementsSummary&quot;: &quot;Hillside Farm: home delivery Thursday; Bristol Bakery: collection Friday&quot; }" />
+        </zeebe:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0i7p2d4</bpmn:incoming>
       <bpmn:outgoing>Flow_1d4a8r3</bpmn:outgoing>
@@ -219,8 +231,12 @@
         <bpmn:outgoing>Flow_1m5o9c7</bpmn:outgoing>
       </bpmn:exclusiveGateway>
       <bpmn:serviceTask id="Activity_0c3m8o5" name="Create marketplace order">
+        <bpmn:documentation>Return orderId and the authoritative positive paymentAmount for the confirmed basket. The example values are for manual Play/Test completion only.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:taskDefinition type="create-marketplace-order" retries="1" />
+          <zeebe:properties>
+            <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;orderId&quot;: &quot;ORD-1001&quot;, &quot;paymentAmount&quot;: 18.5 }" />
+          </zeebe:properties>
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_1m5o9c7</bpmn:incoming>
         <bpmn:outgoing>Flow_0c7o2e9</bpmn:outgoing>
@@ -284,6 +300,9 @@
     <bpmn:serviceTask id="Activity_1s8p4e6" name="Split into producer-specific order elements">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="split-producer-order-elements" retries="3" />
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;producerSubOrder&quot;: { &quot;status&quot;: &quot;CREATED&quot; } }" />
+        </zeebe:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0o6c2s8</bpmn:incoming>
       <bpmn:outgoing>Flow_1s3p9h4</bpmn:outgoing>
@@ -293,9 +312,21 @@
         </bpmn:extensionElements>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:serviceTask>
-    <bpmn:endEvent id="Event_0p2r8q5" name="Payment requested">
+    <bpmn:endEvent id="Event_0p2r8q5" name="Payment requested" zeebe:modelerTemplate="io.camunda.connectors.message.end.v1" zeebe:modelerTemplateVersion="0">
+      <bpmn:documentation>The built-in Message Send connector correlates Payment requested to Functionality 2 in the same cluster and default tenant. Deploy both processes before checkout. Correlate mode raises an incident if no receiver exists, rather than silently discarding the request. Completing or mocking this job manually does not send a message.</bpmn:documentation>
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="send-payment-requested" retries="3" />
+        <zeebe:taskDefinition type="io.camunda:sendMessage:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="Payment requested" target="messageName" />
+          <zeebe:input source="= assert(string(orderId), orderId != null and string(orderId) != &quot;&quot;, &quot;Checkout must produce a non-empty orderId before payment&quot;)" target="correlationKey" />
+          <zeebe:input source="= { orderId: orderId, basketId: basketId, customerId: customerId, productId: productId, requestedQuantity: requestedQuantity, paymentAmount: assert(paymentAmount, paymentAmount instance of number and paymentAmount &gt; 0, &quot;Checkout must produce a positive paymentAmount&quot;), orderProducers: orderProducers, producerSubOrders: producerSubOrders, producerSummary: producerSummary, deliveryArrangementsSummary: deliveryArrangementsSummary }" target="variables" />
+          <zeebe:input source="correlate" target="correlationType.type" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateId" value="io.camunda.connectors.message.v1" />
+          <zeebe:header key="elementTemplateVersion" value="0" />
+          <zeebe:header key="resultVariable" value="paymentHandoff" />
+        </zeebe:taskHeaders>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1s3p9h4</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1p6r4q8" messageRef="Message_1p7r3m9" />
@@ -757,20 +788,6 @@
         <di:waypoint x="2075" y="33" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2083" y="59" width="62" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0m5q9z1_di" bpmnElement="Flow_0m5q9z1">
-        <di:waypoint x="350" y="855" />
-        <di:waypoint x="350" y="950" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="280" y="906" width="62" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1m3v7b8_di" bpmnElement="Flow_1m3v7b8">
-        <di:waypoint x="390" y="950" />
-        <di:waypoint x="390" y="855" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="400" y="913" width="61" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0m6r2s9_di" bpmnElement="Flow_0m6r2s9">

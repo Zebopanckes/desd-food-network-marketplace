@@ -40,6 +40,17 @@
       }
     },
     {
+      "label": "Product",
+      "type": "textfield",
+      "id": "Field_ProductId_Review",
+      "key": "productId",
+      "readonly": true,
+      "layout": {
+        "row": "Row_Product",
+        "columns": null
+      }
+    },
+    {
       "label": "Delivery or Collection Arrangements Summary",
       "type": "textfield",
       "id": "Field_DeliverySummary",
@@ -92,16 +103,32 @@
       }
     },
     {
-      "label": "Basket amendment notes (demo)",
-      "type": "textfield",
-      "id": "Field_ReviewAmendment",
-      "key": "amendedQuantities",
-      "description": "Record the requested change. The demo uses fixed producer totals; it does not price or persist a real basket.",
+      "label": "New quantity",
+      "type": "number",
+      "id": "Field_RequestedQuantity_Review",
+      "key": "requestedQuantity",
+      "description": "The stock check runs again with this quantity before you return to this review.",
+      "decimalDigits": 0,
       "conditional": {
         "hide": "= customerConfirmed = true or customerDecision != \"amend\""
       },
       "validate": {
-        "required": true
+        "required": true,
+        "min": 1
+      },
+      "layout": {
+        "row": "Row_Quantity",
+        "columns": null
+      }
+    },
+    {
+      "label": "Basket amendment notes (demo)",
+      "type": "textfield",
+      "id": "Field_ReviewAmendment",
+      "key": "amendedQuantities",
+      "description": "Optional notes on the requested change.",
+      "conditional": {
+        "hide": "= customerConfirmed = true or customerDecision != \"amend\""
       },
       "layout": {
         "row": "Row_5",

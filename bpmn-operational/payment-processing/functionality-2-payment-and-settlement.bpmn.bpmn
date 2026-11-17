@@ -95,10 +95,11 @@
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="Event_0hq7ehn" name="Payment requested">
+      <bpmn:documentation>Receives the checkout Message Send connector payload, including orderId, paymentAmount, basket/customer identifiers and producer sub-orders. Example data is only for starting this process independently in Play/Test.</bpmn:documentation>
       <bpmn:extensionElements>
-        <zeebe:ioMapping>
-          <zeebe:output source="= 0" target="paymentRetryCount" />
-        </zeebe:ioMapping>
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;orderId&quot;: &quot;ORD-1001&quot;, &quot;basketId&quot;: &quot;BASKET-1001&quot;, &quot;customerId&quot;: &quot;CUST-001&quot;, &quot;paymentAmount&quot;: 18.5 }" />
+        </zeebe:properties>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0f9ee59</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_0p4r9k1" messageRef="Message_1p7r3m9" />
@@ -109,8 +110,19 @@
       <bpmn:outgoing>Flow_1woxn6a</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:serviceTask id="Activity_11o648p" name="Send payment request">
+      <bpmn:documentation>The input mappings prepare paymentRequestId before the worker sends the request. Include this ID in the external request. The response must publish Payment result with this correlation key and paymentSuccessful set to true or false. In Play/Test, complete this job, then publish the response at the message catch event. Job completion alone is not a payment response.</bpmn:documentation>
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="send-payment-request" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="= assert(orderId, orderId != null and string(orderId) != &quot;&quot;, &quot;Payment request requires a non-empty orderId&quot;)" target="orderId" />
+          <zeebe:input source="= if paymentRetryCount = null then 0 else paymentRetryCount" target="paymentRetryCount" />
+          <zeebe:input source="= &quot;PAY-&quot; + string(orderId) + &quot;-&quot; + string(paymentRetryCount + 1)" target="paymentRequestId" />
+          <zeebe:output source="= paymentRetryCount" target="paymentRetryCount" />
+          <zeebe:output source="= paymentRequestId" target="paymentRequestId" />
+          <zeebe:output source="= null" target="paymentSuccessful" />
+          <zeebe:output source="= null" target="paymentReference" />
+          <zeebe:output source="= null" target="paymentFailureReason" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1woxn6a</bpmn:incoming>
       <bpmn:outgoing>Flow_10jzafl</bpmn:outgoing>
@@ -121,6 +133,16 @@
       <bpmn:outgoing>Flow_1vsm1bq</bpmn:outgoing>
     </bpmn:eventBasedGateway>
     <bpmn:intermediateCatchEvent id="Event_0w68vfx" name="Payment result received">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="= assert(string(paymentSuccessful), list contains([&quot;true&quot;, &quot;false&quot;], string(paymentSuccessful)), &quot;Payment result must include paymentSuccessful: true or false&quot;) = &quot;true&quot;" target="paymentSuccessful" />
+          <zeebe:output source="= paymentReference" target="paymentReference" />
+          <zeebe:output source="= paymentFailureReason" target="paymentFailureReason" />
+        </zeebe:ioMapping>
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;paymentSuccessful&quot;: true, &quot;paymentReference&quot;: &quot;TXN-5001&quot; }" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_045z480</bpmn:incoming>
       <bpmn:outgoing>Flow_0goejso</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1j3u2ur" messageRef="Message_0p4r9s2" />
@@ -135,7 +157,7 @@
         <zeebe:taskDefinition type="notify-customer-payment-decline" retries="3" />
         <zeebe:ioMapping>
           <zeebe:output source="= paymentRetryCount + 1" target="paymentRetryCount" />
-          <zeebe:output source="= paymentFailureReason" target="paymentFailureReason" />
+          <zeebe:output source="= if paymentFailureReason = null then &quot;Payment declined by the payment service&quot; else paymentFailureReason" target="paymentFailureReason" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1evabmh</bpmn:incoming>
@@ -153,7 +175,7 @@
         <zeebe:taskDefinition type="record-payment-service-unavailable" retries="3" />
         <zeebe:ioMapping>
           <zeebe:output source="= paymentRetryCount + 1" target="paymentRetryCount" />
-          <zeebe:output source="= paymentFailureReason" target="paymentFailureReason" />
+          <zeebe:output source="= &quot;No response from the payment service within 2 minutes&quot;" target="paymentFailureReason" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_037fgi1</bpmn:incoming>
@@ -286,6 +308,9 @@
     <bpmn:serviceTask id="Activity_076120z" name="Retrieve pending settlements">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="retrieve-pending-settlements" retries="3" />
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;pendingSettlementsFound&quot;: true, &quot;settlementBatchId&quot;: &quot;SETTLEMENT-2026-W47&quot; }" />
+        </zeebe:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_12nhqmj</bpmn:incoming>
       <bpmn:outgoing>Flow_1w1xxn5</bpmn:outgoing>
@@ -299,8 +324,18 @@
       <bpmn:incoming>Flow_04a16lc</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:serviceTask id="Activity_10xhfgd" name="Initiate weekly producer settlements">
+      <bpmn:documentation>Send settlementRequestId with the external request. The payment service must publish Settlement result using that correlation key and a settlementSuccessful boolean. In Play/Test, publish the response at Wait for settlement result after completing this job.</bpmn:documentation>
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="initiate-weekly-settlements" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="= assert(settlementBatchId, settlementBatchId != null and string(settlementBatchId) != &quot;&quot;, &quot;Settlement request requires a non-empty settlementBatchId&quot;)" target="settlementBatchId" />
+          <zeebe:input source="= if settlementRetryCount = null then 0 else settlementRetryCount" target="settlementRetryCount" />
+          <zeebe:input source="= &quot;SET-&quot; + string(settlementBatchId) + &quot;-&quot; + string(settlementRetryCount + 1)" target="settlementRequestId" />
+          <zeebe:output source="= settlementRetryCount" target="settlementRetryCount" />
+          <zeebe:output source="= settlementRequestId" target="settlementRequestId" />
+          <zeebe:output source="= null" target="settlementSuccessful" />
+          <zeebe:output source="= null" target="settlementFailureReason" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_18w1gqb</bpmn:incoming>
       <bpmn:outgoing>Flow_0ewlt0d</bpmn:outgoing>
@@ -311,6 +346,15 @@
       <bpmn:outgoing>Flow_08vw8vc</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:receiveTask id="Event_0opm2xd" name="Wait for settlement result" messageRef="Message_0s8r2m4">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="= assert(string(settlementSuccessful), list contains([&quot;true&quot;, &quot;false&quot;], string(settlementSuccessful)), &quot;Settlement result must include settlementSuccessful: true or false&quot;) = &quot;true&quot;" target="settlementSuccessful" />
+          <zeebe:output source="= settlementFailureReason" target="settlementFailureReason" />
+        </zeebe:ioMapping>
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;settlementSuccessful&quot;: true }" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_08vw8vc</bpmn:incoming>
       <bpmn:outgoing>Flow_1i82xnf</bpmn:outgoing>
     </bpmn:receiveTask>
@@ -330,7 +374,7 @@
         <zeebe:taskDefinition type="record-settlement-failure" retries="3" />
         <zeebe:ioMapping>
           <zeebe:output source="= settlementRetryCount + 1" target="settlementRetryCount" />
-          <zeebe:output source="= settlementFailureReason" target="settlementFailureReason" />
+          <zeebe:output source="= if settlementFailureReason = null then &quot;Settlement failed or no response from the payment service within 2 minutes&quot; else settlementFailureReason" target="settlementFailureReason" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_06md1wo</bpmn:incoming>
@@ -353,6 +397,12 @@
     <bpmn:serviceTask id="Activity_1jjppln" name="Retry failed settlements">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="retry-failed-settlements" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="= &quot;SET-&quot; + string(settlementBatchId) + &quot;-&quot; + string(settlementRetryCount + 1)" target="settlementRequestId" />
+          <zeebe:output source="= settlementRequestId" target="settlementRequestId" />
+          <zeebe:output source="= null" target="settlementSuccessful" />
+          <zeebe:output source="= null" target="settlementFailureReason" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1sb2d8m</bpmn:incoming>
       <bpmn:outgoing>Flow_09zcm2m</bpmn:outgoing>

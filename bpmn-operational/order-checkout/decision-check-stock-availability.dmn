@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0mwrr4x" name="Check Stock Availability" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Web Modeler" exporterVersion="1921008" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.10.0">
+  <decision id="check-stock-availability" name="Check Stock Availability">
+    <decisionTable id="DecisionTable_1yfb5e6" hitPolicy="FIRST">
+      <input id="Input_1" label="Product">
+        <inputExpression id="InputExpression_1" typeRef="string">
+          <text>productId</text>
+        </inputExpression>
+      </input>
+      <input id="InputClause_1km5trm" label="Quantity">
+        <inputExpression id="LiteralExpression_0u25wan" typeRef="number">
+          <text>requestedQuantity</text>
+        </inputExpression>
+      </input>
+      <output id="Output_1" label="Sufficient stock" name="sufficientStock" typeRef="boolean" />
+      <rule id="DecisionRule_0dc9ite">
+        <description>Demo stock level: 20 apple boxes</description>
+        <inputEntry id="UnaryTests_1ed50km">
+          <text>"apple-box"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1c20v0s">
+          <text>[1..20]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1aexea8">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1alwfxd">
+        <description>Demo stock level: 10 bread loaves</description>
+        <inputEntry id="UnaryTests_18hlsr1">
+          <text>"bread-loaf"</text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0j7om17">
+          <text>[1..10]</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_02go0gj">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_0rmv7q2">
+        <description>Unavailable item removed from basket, nothing left to reserve</description>
+        <inputEntry id="UnaryTests_0rmv1p4">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_0rmv2q5">
+          <text>0</text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_0rmv3r6">
+          <text>true</text>
+        </outputEntry>
+      </rule>
+      <rule id="DecisionRule_1muj6a2">
+        <description>Unknown product or quantity above stock</description>
+        <inputEntry id="UnaryTests_0bg71kk">
+          <text></text>
+        </inputEntry>
+        <inputEntry id="UnaryTests_1kk0blf">
+          <text></text>
+        </inputEntry>
+        <outputEntry id="LiteralExpression_1vlhnxf">
+          <text>false</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape dmnElementRef="check-stock-availability">
+        <dc:Bounds height="80" width="180" x="160" y="80" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

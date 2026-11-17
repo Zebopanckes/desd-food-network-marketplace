@@ -29,14 +29,41 @@
       }
     },
     {
-      "label": "Amended Quantities",
+      "label": "Product",
+      "type": "textfield",
+      "id": "Field_ProductId_Amend",
+      "key": "productId",
+      "readonly": true,
+      "layout": {
+        "row": "Row_Product",
+        "columns": null
+      }
+    },
+    {
+      "label": "New quantity",
+      "type": "number",
+      "id": "Field_RequestedQuantity_Amend",
+      "key": "requestedQuantity",
+      "description": "Prefilled with the quantity that failed the stock check. Demo stock: apple-box up to 20, bread-loaf up to 10.",
+      "decimalDigits": 0,
+      "conditional": {
+        "hide": "= unavailableProduct = true"
+      },
+      "validate": {
+        "required": true,
+        "min": 1
+      },
+      "layout": {
+        "row": "Row_Quantity",
+        "columns": null
+      }
+    },
+    {
+      "label": "Amendment notes",
       "type": "textfield",
       "id": "Field_AmendedQuantities",
       "key": "amendedQuantities",
-      "description": "Demo amendment notes (e.g., apples: 2, sourdough: 1). Submitting this form resolves the simulated shortage unless an unavailable product still needs removal/replacement. This does not update a real inventory.",
-      "validate": {
-        "required": true
-      },
+      "description": "Optional notes on the change (for example, apples: 2, sourdough: 1).",
       "layout": {
         "row": "Row_2",
         "columns": null

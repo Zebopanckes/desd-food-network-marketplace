@@ -29,6 +29,17 @@
       }
     },
     {
+      "label": "Unavailable product",
+      "type": "textfield",
+      "id": "Field_ProductId_Replace",
+      "key": "productId",
+      "readonly": true,
+      "layout": {
+        "row": "Row_Product",
+        "columns": null
+      }
+    },
+    {
       "label": "Replacement Choice",
       "type": "radio",
       "id": "Field_ReplacementChoice",
@@ -53,11 +64,21 @@
       }
     },
     {
-      "label": "Replacement Product ID (if replacing)",
-      "type": "textfield",
+      "label": "Replacement product",
+      "type": "select",
       "id": "Field_ReplacementProductId",
       "key": "replacementProductId",
-      "description": "Leave blank if removing the product",
+      "description": "The stock check runs again with this product and the current quantity.",
+      "values": [
+        {
+          "label": "Apple box (apple-box)",
+          "value": "apple-box"
+        },
+        {
+          "label": "Bread loaf (bread-loaf)",
+          "value": "bread-loaf"
+        }
+      ],
       "conditional": {
         "hide": "= replacementChoice != \"replace\""
       },
