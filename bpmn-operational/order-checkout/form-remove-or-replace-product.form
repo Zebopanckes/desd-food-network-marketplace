@@ -89,6 +89,25 @@
         "row": "Row_3",
         "columns": null
       }
+    },
+    {
+      "label": "Replacement quantity",
+      "type": "number",
+      "id": "Field_ReplacementQuantity",
+      "key": "requestedQuantity",
+      "description": "Prefilled with the current quantity. Demo stock: apple-box up to 20, bread-loaf up to 10.",
+      "decimalDigits": 0,
+      "conditional": {
+        "hide": "= replacementChoice != \"replace\""
+      },
+      "validate": {
+        "required": true,
+        "min": 1
+      },
+      "layout": {
+        "row": "Row_4",
+        "columns": null
+      }
     }
   ],
   "type": "default"

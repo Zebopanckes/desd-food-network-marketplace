@@ -2,16 +2,8 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0v8k3m1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Web Modeler" exporterVersion="64767e4" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.9.0">
   <bpmn:error id="Error_1x9p2k4" name="OrderCreationFailed" errorCode="ERR_ORDER_CREATE" />
   <bpmn:error id="Error_0s4r8v2" name="StockReservationFailed" errorCode="ERR_STOCK_RESERVE" />
-  <bpmn:message id="Message_0a4b8c2" name="Customer order placed">
-    <bpmn:extensionElements>
-      <zeebe:subscription correlationKey="=basketId" />
-    </bpmn:extensionElements>
-  </bpmn:message>
-  <bpmn:message id="Message_1p7r3m9" name="Payment requested">
-    <bpmn:extensionElements>
-      <zeebe:subscription correlationKey="=orderId" />
-    </bpmn:extensionElements>
-  </bpmn:message>
+  <bpmn:message id="Message_0a4b8c2" name="Customer order placed" />
+  <bpmn:message id="Message_1p7r3m9" name="Payment requested" />
   <bpmn:collaboration id="Collaboration_1f4n8c2">
     <bpmn:participant id="Participant_0c4u7s1" name="Customers" />
     <bpmn:participant id="Participant_1m8k2p9" name="Marketplace" processRef="Process_0m4r7k2" />
@@ -19,7 +11,8 @@
     <bpmn:participant id="Participant_0p5s8m2" name="Payment and Settlement (Functionality 2)" />
     <bpmn:messageFlow id="Flow_0m1c8p2" name="Customer order placed" sourceRef="Participant_0c4u7s1" targetRef="Event_0s9t3c1" />
     <bpmn:messageFlow id="Flow_1m4n7q3" name="Stock shortage notice" sourceRef="Activity_1i5c8a2" targetRef="Participant_0c4u7s1" />
-    <bpmn:messageFlow id="Flow_0m9r2w6" name="Amended basket" sourceRef="Participant_0c4u7s1" targetRef="Activity_0r6p3u8" />
+    <bpmn:messageFlow id="Flow_0m9r2w6" name="Amended basket" sourceRef="Participant_0c4u7s1" targetRef="Activity_1i5c8a2" />
+    <bpmn:messageFlow id="Flow_1m5r9c4" name="Replacement / removal choice" sourceRef="Participant_0c4u7s1" targetRef="Activity_0r6p3u8" />
     <bpmn:messageFlow id="Flow_1m2s6d4" name="Order summary" sourceRef="Activity_0r4c9o2" targetRef="Participant_0c4u7s1" />
     <bpmn:messageFlow id="Flow_0m7f3k9" name="Order decision" sourceRef="Participant_0c4u7s1" targetRef="Activity_0r4c9o2" />
     <bpmn:messageFlow id="Flow_1m8e4x2" name="Order failure notice" sourceRef="Activity_1n7c3f5" targetRef="Participant_0c4u7s1" />
@@ -64,6 +57,13 @@
     </bpmn:laneSet>
     <bpmn:startEvent id="Event_0s9t3c1" name="Customer order placed">
       <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="= if basketId != null and string(basketId) != &quot;&quot; then string(basketId) else &quot;BASKET-1001&quot;" target="basketId" />
+          <zeebe:output source="= if customerId != null and string(customerId) != &quot;&quot; then string(customerId) else &quot;CUST-001&quot;" target="customerId" />
+          <zeebe:output source="= if productId != null and string(productId) != &quot;&quot; then string(productId) else &quot;apple-box&quot;" target="productId" />
+          <zeebe:output source="= if requestedQuantity instance of number then requestedQuantity else if requestedQuantity != null and number(string(requestedQuantity)) != null then number(string(requestedQuantity)) else 5" target="requestedQuantity" />
+          <zeebe:output source="= customerConfirmed = true" target="customerConfirmed" />
+        </zeebe:ioMapping>
         <zeebe:properties>
           <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;basketId&quot;: &quot;BASKET-1001&quot;, &quot;customerId&quot;: &quot;CUST-001&quot;, &quot;productId&quot;: &quot;apple-box&quot;, &quot;requestedQuantity&quot;: 5 }" />
         </zeebe:properties>
@@ -106,8 +106,9 @@
           <zeebe:userTask />
           <zeebe:formDefinition formId="form-inform-and-amend-basket" />
           <zeebe:ioMapping>
+            <zeebe:input source="= requestedQuantity" target="previousRequestedQuantity" />
             <zeebe:output source="= amendedQuantities" target="amendedQuantities" />
-            <zeebe:output source="= requestedQuantity" target="requestedQuantity" />
+            <zeebe:output source="= if unavailableProduct = true or requestedQuantity = null then previousRequestedQuantity else requestedQuantity" target="requestedQuantity" />
             <zeebe:output source="= unavailableProduct = true" target="unavailableProduct" />
             <zeebe:output source="= unavailableProduct != true" target="basketAmended" />
           </zeebe:ioMapping>
@@ -125,10 +126,11 @@
           <zeebe:userTask />
           <zeebe:formDefinition formId="form-remove-or-replace-product" />
           <zeebe:ioMapping>
+            <zeebe:input source="= requestedQuantity" target="previousRequestedQuantity" />
             <zeebe:output source="= replacementChoice" target="replacementChoice" />
             <zeebe:output source="= replacementProductId" target="replacementProductId" />
-            <zeebe:output source="= if replacementChoice = &quot;replace&quot; and replacementProductId != null then replacementProductId else productId" target="productId" />
-            <zeebe:output source="= if replacementChoice = &quot;remove&quot; then 0 else requestedQuantity" target="requestedQuantity" />
+            <zeebe:output source="= if replacementChoice = &quot;remove&quot; then &quot;remaining-basket-items&quot; else if replacementChoice = &quot;replace&quot; and replacementProductId != null then replacementProductId else productId" target="productId" />
+            <zeebe:output source="= if replacementChoice = &quot;remove&quot; then 0 else if requestedQuantity != null then requestedQuantity else previousRequestedQuantity" target="requestedQuantity" />
             <zeebe:output source="= false" target="unavailableProduct" />
             <zeebe:output source="= true" target="basketAmended" />
           </zeebe:ioMapping>
@@ -177,6 +179,13 @@
       <bpmn:extensionElements>
         <zeebe:userTask />
         <zeebe:formDefinition formId="form-review-and-confirm-order" />
+        <zeebe:ioMapping>
+          <zeebe:input source="= if requestedQuantity != null and requestedQuantity &gt;= 1 then requestedQuantity else 1" target="newRequestedQuantity" />
+          <zeebe:output source="= customerConfirmed = true" target="customerConfirmed" />
+          <zeebe:output source="= if customerConfirmed = true then &quot;confirm&quot; else customerDecision" target="customerDecision" />
+          <zeebe:output source="= if customerConfirmed != true and customerDecision = &quot;amend&quot; and newRequestedQuantity != null then newRequestedQuantity else requestedQuantity" target="requestedQuantity" />
+          <zeebe:output source="= amendedQuantities" target="amendedQuantities" />
+        </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1d4a8r3</bpmn:incoming>
       <bpmn:outgoing>Flow_0r8c3g7</bpmn:outgoing>
@@ -300,6 +309,9 @@
     <bpmn:serviceTask id="Activity_1s8p4e6" name="Split into producer-specific order elements">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="split-producer-order-elements" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="= null" target="producerSubOrder" />
+        </zeebe:ioMapping>
         <zeebe:properties>
           <zeebe:property name="camundaModeler:exampleOutputJson" value="{ &quot;producerSubOrder&quot;: { &quot;status&quot;: &quot;CREATED&quot; } }" />
         </zeebe:properties>
@@ -308,7 +320,7 @@
       <bpmn:outgoing>Flow_1s3p9h4</bpmn:outgoing>
       <bpmn:multiInstanceLoopCharacteristics>
         <bpmn:extensionElements>
-          <zeebe:loopCharacteristics inputCollection="=orderProducers" inputElement="producer" outputCollection="producerSubOrders" outputElement="=producerSubOrder" />
+          <zeebe:loopCharacteristics inputCollection="=orderProducers" inputElement="producer" outputCollection="producerSubOrders" outputElement="= { producerId: producer, orderId: orderId, status: if producerSubOrder != null and producerSubOrder.status != null then producerSubOrder.status else &quot;CREATED&quot; }" />
         </bpmn:extensionElements>
       </bpmn:multiInstanceLoopCharacteristics>
     </bpmn:serviceTask>
@@ -368,7 +380,7 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1d9k3p2">
     <bpmndi:BPMNPlane id="BPMNPlane_0p7m2w8" bpmnElement="Collaboration_1f4n8c2">
       <bpmndi:BPMNShape id="Participant_0c4u7s1_di" bpmnElement="Participant_0c4u7s1" isHorizontal="true">
-        <dc:Bounds x="150" y="-37" width="2620" height="70" />
+        <dc:Bounds x="160" y="-37" width="2620" height="70" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Participant_1m8k2p9_di" bpmnElement="Participant_1m8k2p9" isHorizontal="true">
         <dc:Bounds x="160" y="110" width="2620" height="790" />
@@ -756,17 +768,24 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1m4n7q3_di" bpmnElement="Flow_1m4n7q3">
-        <di:waypoint x="685" y="270" />
-        <di:waypoint x="685" y="33" />
+        <di:waypoint x="660" y="270" />
+        <di:waypoint x="660" y="33" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="613" y="56" width="73" height="40" />
+          <dc:Bounds x="582" y="56" width="73" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0m9r2w6_di" bpmnElement="Flow_0m9r2w6">
-        <di:waypoint x="915" y="33" />
-        <di:waypoint x="915" y="270" />
+        <di:waypoint x="710" y="33" />
+        <di:waypoint x="710" y="270" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="923" y="70" width="83" height="14" />
+          <dc:Bounds x="718" y="68" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1m5r9c4_di" bpmnElement="Flow_1m5r9c4">
+        <di:waypoint x="930" y="33" />
+        <di:waypoint x="930" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="938" y="62" width="76" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1m2s6d4_di" bpmnElement="Flow_1m2s6d4">

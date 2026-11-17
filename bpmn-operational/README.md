@@ -10,9 +10,9 @@ Example data supplies suggested variables when you manually start instances, com
 
 ### Order and checkout
 
-- The default start data (`apple-box`, quantity 5) passes the stock check.
-- To test the shortage path, start with `requestedQuantity` above the demo stock (apple-box 20, bread-loaf 10), or use any other `productId`.
-- The decision `check-stock-availability` uses hit policy FIRST. Quantity 0 (product removed) passes; negative quantities fail.
+- Starting with empty variables `{}` (or with the start event's example data) defaults to `apple-box`, quantity `5` (`BASKET-1001`, `CUST-001`), which passes the stock check. Do not pass `sufficientStock` at start—the DMN computes and overwrites `sufficientStock`.
+- To test the shortage path, start with `requestedQuantity` above the demo stock (`apple-box` 20, `bread-loaf` 10), or use any other `productId` to test an unavailable item.
+- The decision `check-stock-availability` uses hit policy FIRST. Choosing to remove an unavailable item sets `productId` to `remaining-basket-items` and `requestedQuantity` to `0`, which passes so remaining multi-vendor items can proceed; negative quantities fail.
 - "Create marketplace order" must return `orderId` and a positive `paymentAmount`; its example output provides both.
 - The "Payment requested" end event uses Camunda's [Message Send connector](https://docs.camunda.io/docs/8.9/components/connectors/out-of-the-box-connectors/message-send/) in correlate mode. It sends the order IDs, amount and producer sub-orders to F2's "Payment requested" message start and stores the receipt in `paymentHandoff`. A missing receiver raises an incident instead of discarding the message.
 - A message arrow does not link Play deployment dependencies. Do not assume playing F1 alone deploys F2 into that isolated environment. For the real handoff both must be deployed in the same environment; mocking/completing the connector job without executing it does not start F2. F2 can also be played independently with its start example data.

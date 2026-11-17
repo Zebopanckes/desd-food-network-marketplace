@@ -51,6 +51,17 @@
       }
     },
     {
+      "label": "Current quantity",
+      "type": "number",
+      "id": "Field_CurrentQuantity_Review",
+      "key": "requestedQuantity",
+      "readonly": true,
+      "layout": {
+        "row": "Row_Product",
+        "columns": null
+      }
+    },
+    {
       "label": "Delivery or Collection Arrangements Summary",
       "type": "textfield",
       "id": "Field_DeliverySummary",
@@ -106,7 +117,7 @@
       "label": "New quantity",
       "type": "number",
       "id": "Field_RequestedQuantity_Review",
-      "key": "requestedQuantity",
+      "key": "newRequestedQuantity",
       "description": "The stock check runs again with this quantity before you return to this review.",
       "decimalDigits": 0,
       "conditional": {
