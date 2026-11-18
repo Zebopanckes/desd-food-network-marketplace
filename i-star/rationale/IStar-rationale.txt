@@ -4,20 +4,21 @@
       "id": "01f1ae35-4e8a-4b1e-b7c3-84456788d70e",
       "text": "Platform Admin",
       "type": "istar.Role",
-      "x": 1299,
+      "x": 1435,
       "y": 898,
       "customProperties": {
-        "Description": ""
+        "Description": "Network operator."
       },
       "nodes": [
         {
           "id": "288693ae-f246-4ec4-96ef-ed67416e4c1d",
           "text": "Earn 5% commission",
           "type": "istar.Goal",
-          "x": 1359,
+          "x": 1495,
           "y": 942,
           "customProperties": {
-            "Description": ""
+            "Description": "",
+            "Scope": "F2"
           }
         }
       ]
@@ -29,14 +30,24 @@
       "x": 1070,
       "y": 900,
       "customProperties": {
-        "Description": ""
+        "Description": "External service which processes payments on the platform."
       },
       "nodes": [
         {
           "id": "80817b7b-00d8-46ac-9dd6-abfdb234a95d",
-          "text": "Process payment & return result",
+          "text": "Process payment and return result",
           "type": "istar.Task",
           "x": 1124,
+          "y": 942,
+          "customProperties": {
+            "Description": ""
+          }
+        },
+        {
+          "id": "e4f8123a-7c9b-4d2e-9a15-6b8c3f10d4e2",
+          "text": "Process producer payouts and return result",
+          "type": "istar.Task",
+          "x": 1264,
           "y": 942,
           "customProperties": {
             "Description": ""
@@ -51,7 +62,7 @@
       "x": 282,
       "y": 270,
       "customProperties": {
-        "Description": ""
+        "Description": "Local buyers who browser, search and place orders."
       },
       "nodes": [
         {
@@ -112,7 +123,8 @@
           "x": 416,
           "y": 276,
           "customProperties": {
-            "Description": ""
+            "Description": "",
+            "Scope": "F2"
           }
         },
         {
@@ -164,7 +176,7 @@
       "x": 1008,
       "y": 288,
       "customProperties": {
-        "Description": ""
+        "Description": "The platform which connects customers to producers."
       },
       "nodes": [
         {
@@ -174,7 +186,8 @@
           "x": 1082,
           "y": 394,
           "customProperties": {
-            "Description": ""
+            "Description": "",
+            "Scope": "F1"
           }
         },
         {
@@ -224,7 +237,8 @@
           "x": 1184,
           "y": 643,
           "customProperties": {
-            "Description": ""
+            "Description": "",
+            "Scope": "F2"
           }
         },
         {
@@ -276,7 +290,7 @@
       "x": 1604,
       "y": 275,
       "customProperties": {
-        "Description": ""
+        "Description": "Local food suppliers."
       },
       "nodes": [
         {
@@ -286,12 +300,13 @@
           "x": 1636,
           "y": 492,
           "customProperties": {
-            "Description": ""
+            "Description": "",
+            "Scope": "F2"
           }
         },
         {
           "id": "52c1de93-e18e-49d7-9fd4-c9426e1c9268",
-          "text": "List products & update stock/allegerns",
+          "text": "List products & update stock/allergens",
           "type": "istar.Task",
           "x": 1712,
           "y": 293,
@@ -306,7 +321,8 @@
           "x": 1664,
           "y": 649,
           "customProperties": {
-            "Description": ""
+            "Description": "",
+            "Scope": "F2"
           }
         },
         {
@@ -390,7 +406,7 @@
     },
     {
       "id": "1789f413-6046-4c74-aa09-b930d877d333",
-      "text": "Payment Secure",
+      "text": "Payment secure",
       "type": "istar.Quality",
       "x": 871,
       "y": 740,
@@ -404,13 +420,25 @@
       "id": "0ebaa8d6-4641-417c-926a-550cc54b5fd4",
       "text": "Calculate 5% commission",
       "type": "istar.Task",
-      "x": 1357,
-      "y": 830,
+      "x": 1445,
+      "y": 825,
       "customProperties": {
         "Description": ""
       },
       "source": "288693ae-f246-4ec4-96ef-ed67416e4c1d",
       "target": "05462e9c-5920-4678-8fe1-3f9c4f4e207e"
+    },
+    {
+      "id": "9b4d7e21-5f3a-4c88-b1d2-7e6a9c04f3b1",
+      "text": "Process producer payouts and return result",
+      "type": "istar.Task",
+      "x": 1272,
+      "y": 825,
+      "customProperties": {
+        "Description": ""
+      },
+      "source": "05462e9c-5920-4678-8fe1-3f9c4f4e207e",
+      "target": "e4f8123a-7c9b-4d2e-9a15-6b8c3f10d4e2"
     },
     {
       "id": "d366f682-3c74-4e46-aca5-50d832b7ff28",
@@ -450,7 +478,7 @@
     },
     {
       "id": "70aa799c-f11b-42d8-9091-9852f8db63e7",
-      "text": "Safe, accurate local produce & fulfilment",
+      "text": "Safe, accurate local produce and fulfilment",
       "type": "istar.Resource",
       "x": 1173,
       "y": 113,
@@ -498,7 +526,7 @@
     },
     {
       "id": "cf800940-718e-427b-85c0-5062690886e4",
-      "text": "Simple listing & inventory tool",
+      "text": "Simple listing and inventory tool",
       "type": "istar.Quality",
       "x": 1483,
       "y": 355,
@@ -510,7 +538,7 @@
     },
     {
       "id": "a0a14f43-89d7-480d-ab46-36c60e694dd8",
-      "text": "Accurate stock & allergen info",
+      "text": "Accurate stock and allergen info",
       "type": "istar.Resource",
       "x": 1490,
       "y": 503,
@@ -522,6 +550,18 @@
     }
   ],
   "links": [
+    {
+      "id": "c1a94e72-3b8d-4f61-9e20-8d5b2a17c9f4",
+      "type": "istar.DependencyLink",
+      "source": "9b4d7e21-5f3a-4c88-b1d2-7e6a9c04f3b1",
+      "target": "e4f8123a-7c9b-4d2e-9a15-6b8c3f10d4e2"
+    },
+    {
+      "id": "f7e28b14-6d3c-4a92-8b51-3c9e0d42a8e7",
+      "type": "istar.DependencyLink",
+      "source": "05462e9c-5920-4678-8fe1-3f9c4f4e207e",
+      "target": "9b4d7e21-5f3a-4c88-b1d2-7e6a9c04f3b1"
+    },
     {
       "id": "d4863528-2a44-4742-87c3-32f388767771",
       "type": "istar.DependencyLink",
@@ -817,6 +857,14 @@
     "80817b7b-00d8-46ac-9dd6-abfdb234a95d": {
       "width": 112.00001525878906,
       "height": 53.125
+    },
+    "e4f8123a-7c9b-4d2e-9a15-6b8c3f10d4e2": {
+      "width": 112.00001525878906,
+      "height": 53.125
+    },
+    "9b4d7e21-5f3a-4c88-b1d2-7e6a9c04f3b1": {
+      "width": 108.58331298828125,
+      "height": 51.48333740234375
     },
     "b73280f8-9136-49ea-bba3-3e159fccfba6": {
       "width": 91.13749694824219,

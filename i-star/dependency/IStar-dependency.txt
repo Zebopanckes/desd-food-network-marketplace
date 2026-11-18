@@ -60,7 +60,7 @@
   "dependencies": [
     {
       "id": "c6bcad69-44a5-44e0-a4e7-2309e5375ac1",
-      "text": "Multi vendor order coordination",
+      "text": "Multi-vendor order coordination",
       "type": "istar.Task",
       "x": 319,
       "y": 187,
@@ -132,7 +132,7 @@
     },
     {
       "id": "3c6da901-2d89-43b5-8d50-6632c2b0c0ad",
-      "text": "Safe, accurate local produce and fulfilment ",
+      "text": "Safe, accurate local produce and fulfilment",
       "type": "istar.Resource",
       "x": 182,
       "y": 272,
@@ -216,7 +216,7 @@
     },
     {
       "id": "62c34edf-0325-4133-aab4-c358c9174986",
-      "text": "Process producer payouts and return result ",
+      "text": "Process producer payouts and return result",
       "type": "istar.Task",
       "x": 738,
       "y": 223,
